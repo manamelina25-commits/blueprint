@@ -1,3 +1,11 @@
+
+import { initialScores } from "../data/scores";
+import { initialMissions } from "../data/missions";
+import { progressHistory } from "../data/progressHistory";
+import { recentActivities } from "../data/recentActivities";
+import { communityWins } from "../data/communityWins";
+import { initialChatMessages } from "../data/chatMessages";
+import { mockPhotoRating } from "../data/mockPhotoRating";
 import { useEffect, useRef, useState } from "react";
 import {
   Flame,
