@@ -2,6 +2,7 @@ import "./styles/blueprint.css";
 import Onboarding from "./pages/Onboarding";
 import React, { useState, useEffect, useRef } from "react";
 import Landing from "./pages/Landing";
+import ScoreRing from "./components/ScoreRing";
 import {
   Flame, Camera, MessageCircle, Target, Trophy, Check, ChevronRight,
   Crown, User, Send, ArrowUp, Home, BarChart3, Users, ArrowRight,
@@ -77,19 +78,6 @@ const BlueprintApp = () => {
  
 
   // ============ APP INTERIOR ============
-  const ScoreRing = ({ value, size = 180 }) => {
-    const r = size / 2 - 4;
-    const c = 2 * Math.PI * r;
-    const offset = c - (value / 100) * c;
-    return (
-      <svg className="bp-score-ring" width={size} height={size}>
-        <circle cx={size/2} cy={size/2} r={r} stroke="var(--line)" strokeWidth="1"/>
-        <circle cx={size/2} cy={size/2} r={r} stroke="var(--blue)" strokeWidth="1.5"
-          strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.2, 0.8, 0.2, 1)" }}/>
-      </svg>
-    );
-  };
 
   const HomeTab = () => (
     <div style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto" }} className="bp-fade-up">
