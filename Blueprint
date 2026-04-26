@@ -1,0 +1,1217 @@
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Flame, Camera, MessageCircle, Target, Trophy, Check, ChevronRight,
+  Crown, User, Send, ArrowUp, Home, BarChart3, Users, ArrowRight,
+  Plus, Upload, X, Eye, Sparkles, Zap, Award, Radio, Settings
+} from "lucide-react";
+
+// ================================================================
+// BLUEPRINT · v3
+// Aesthetic: black, white, blue. Editorial serif display, geometric
+// sans for UI, mono for technical marks. Quiet confidence. Private
+// members' club energy. No military LARP — just precision.
+// ================================================================
+
+const BlueprintApp = () => {
+  const [view, setView] = useState("landing");
+  const [onboardStep, setOnboardStep] = useState(0);
+  const [activeTab, setActiveTab] = useState("home");
+  const [streak, setStreak] = useState(12);
+  const [scores, setScores] = useState({ overall: 71, face: 68, style: 74, profile: 62, text: 77, confidence: 70 });
+  const [missions, setMissions] = useState([
+    { id: 1, title: "One photograph in golden-hour light. No filters, no poses.", pts: 8, done: false, category: "Image" },
+    { id: 2, title: "Send the opener template to three recent matches.", pts: 12, done: true, category: "Signal" },
+    { id: 3, title: "Posture reset: four minutes, twice today.", pts: 5, done: false, category: "Frame" },
+  ]);
+  const [chatMessages, setChatMessages] = useState([
+    { role: "coach", text: "I looked at the Mara thread. You hedged on the callback — that's why she stalled. It isn't charisma that closes. It's conviction. Shall I rewrite the line?" },
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratedPhoto, setRatedPhoto] = useState(null);
+
+  const chatEndRef = useRef(null);
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages]);
+
+  const toggleMission = (id) => {
+    setMissions(missions.map(m => {
+      if (m.id === id && !m.done) {
+        setScores(s => ({ ...s, overall: Math.min(100, s.overall + 1) }));
+        return { ...m, done: true };
+      }
+      return m;
+    }));
+  };
+
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+    setChatMessages(p => [...p, { role: "user", text: chatInput }]);
+    setChatInput("");
+    setTimeout(() => {
+      const res = [
+        "Stop asking. Lead. 'Thursday, 8pm, wine bar on 4th. Say yes.' Declarative. Short. Either she meets you or she doesn't — and either way you know.",
+        "Your opener is doing too much work. Cut it in half. Curiosity beats cleverness. She should wonder, not laugh.",
+        "That's a conviction problem wearing a text problem's clothes. Rule: one line. Then silence. Let it do the heavy lifting.",
+        "Good instinct. Send it. If she doesn't answer in 48 hours, you move on. Chasing is the anti-signal — she can feel weakness through the screen.",
+      ];
+      setChatMessages(p => [...p, { role: "coach", text: res[Math.floor(Math.random() * res.length)] }]);
+    }, 700);
+  };
+
+  const handlePhotoRate = () => {
+    setShowRatingModal(true);
+    setTimeout(() => {
+      setRatedPhoto({
+        score: 73,
+        verdict: "Viable anchor frame",
+        positives: ["Directional lighting from the left", "Unforced expression", "Clean negative space behind you"],
+        negatives: ["Crop is too tight at the shoulders", "Shirt colour desaturates your skin"],
+        action: "Recrop at 4:5. Reshoot in the olive tee. Expect roughly +9 on the rebuild.",
+      });
+    }, 1800);
+  };
+
+  // ============ STYLES ============
+  const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; }
+
+    .bp-root {
+      --ink: #050507;
+      --ink-2: #0b0b0e;
+      --ink-3: #111116;
+      --ink-4: #1a1a21;
+      --line: #1e1e27;
+      --line-bright: #2a2a36;
+      --white: #f5f5f7;
+      --white-dim: #c4c4cc;
+      --gray: #8a8a95;
+      --gray-low: #52525c;
+      --gray-lowest: #2e2e37;
+      --blue: #3b6cff;
+      --blue-bright: #5f8aff;
+      --blue-glow: #9ab4ff;
+      --blue-deep: #1f3a99;
+      --blue-ice: #dfe8ff;
+      font-family: 'Manrope', sans-serif;
+      color: var(--white);
+      background: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+      font-weight: 400;
+    }
+    .bp-serif { font-family: 'Fraunces', serif; font-optical-sizing: auto; letter-spacing: -0.025em; }
+    .bp-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+
+    @keyframes bp-scan { 0% { transform: translateY(-100%); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateY(100%); opacity: 0; } }
+    @keyframes bp-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+    @keyframes bp-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bp-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes bp-slow-fade { from { opacity: 0; } to { opacity: 1; } }
+    .bp-fade-up { animation: bp-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .bp-slow-fade { animation: bp-slow-fade 1.2s ease both; }
+
+    .bp-grid {
+      background-image:
+        linear-gradient(rgba(30, 30, 39, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 30, 39, 0.6) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+
+    .bp-btn {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.01em;
+      padding: 16px 28px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bp-btn-primary {
+      background: var(--white);
+      color: var(--ink);
+    }
+    .bp-btn-primary:hover {
+      background: var(--blue);
+      color: var(--white);
+    }
+    .bp-btn-blue {
+      background: var(--blue);
+      color: var(--white);
+    }
+    .bp-btn-blue:hover {
+      background: var(--blue-bright);
+      transform: translateY(-1px);
+    }
+    .bp-btn-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid var(--line-bright);
+    }
+    .bp-btn-ghost:hover {
+      border-color: var(--white);
+    }
+
+    .bp-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+    .bp-label-white { color: var(--white); }
+    .bp-label-blue { color: var(--blue-bright); }
+
+    .bp-card {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .bp-corner {
+      position: absolute;
+      width: 10px; height: 10px;
+      border: 1px solid var(--blue);
+    }
+    .bp-corner-tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+    .bp-corner-tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+    .bp-corner-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+    .bp-corner-br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+    .bp-bar {
+      height: 1px;
+      background: var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+    .bp-bar-fill {
+      height: 100%;
+      background: var(--blue);
+      transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .bp-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .bp-scroll::-webkit-scrollbar-track { background: transparent; }
+    .bp-scroll::-webkit-scrollbar-thumb { background: var(--line-bright); }
+
+    input.bp-input, textarea.bp-input {
+      background: var(--ink);
+      border: 1px solid var(--line-bright);
+      color: var(--white);
+      padding: 16px 20px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+    input.bp-input:focus, textarea.bp-input:focus {
+      border-color: var(--blue);
+    }
+
+    .bp-score-ring { transform: rotate(-90deg); }
+    .bp-score-ring circle { fill: none; }
+
+    .bp-mark {
+      width: 32px; height: 32px;
+      position: relative;
+      display: inline-block;
+    }
+    .bp-mark::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--white);
+    }
+    .bp-mark::after {
+      content: '';
+      position: absolute;
+      inset: 7px;
+      background: var(--blue);
+    }
+
+    .bp-hairline {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--line-bright), transparent);
+    }
+  `;
+
+  // ============ LANDING ============
+  const Landing = () => (
+    <div className="bp-root" style={{ position: "relative", overflow: "hidden" }}>
+      {/* subtle grid wash */}
+      <div className="bp-grid" style={{ position: "absolute", inset: 0, opacity: 0.35 }} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 600, background: "radial-gradient(ellipse at 70% 20%, rgba(59, 108, 255, 0.12), transparent 60%)" }} />
+
+      {/* Nav */}
+      <nav style={{ position: "relative", zIndex: 10, padding: "28px 56px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="bp-mark" />
+          <div>
+            <div className="bp-serif" style={{ fontSize: 22, fontWeight: 400, letterSpacing: "-0.03em" }}>Blueprint</div>
+            <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)", marginTop: -2 }}>EST. 2026</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
+          {["The System", "Membership", "Journal"].map(l => (
+            <a key={l} className="bp-label" style={{ cursor: "pointer" }}>{l}</a>
+          ))}
+          <button className="bp-btn bp-btn-ghost" style={{ padding: "11px 20px" }} onClick={() => setView("onboarding")}>Enter</button>
+        </div>
+      </nav>
+
+      <div className="bp-hairline" />
+
+      {/* Hero */}
+      <section style={{ position: "relative", zIndex: 2, padding: "140px 56px 160px", maxWidth: 1440, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 100, alignItems: "center" }}>
+          <div className="bp-fade-up">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+              <span style={{ width: 6, height: 6, background: "var(--blue)", borderRadius: "50%", animation: "bp-pulse 2.4s infinite" }} />
+              <span className="bp-label bp-label-blue">A private practice for modern men</span>
+            </div>
+            <h1 className="bp-serif" style={{ fontSize: 116, lineHeight: 0.96, fontWeight: 300, margin: 0, letterSpacing: "-0.04em" }}>
+              The <em style={{ fontStyle: "italic", fontWeight: 300, color: "var(--blue-bright)" }}>discreet</em><br/>
+              study of<br/>
+              becoming.
+            </h1>
+            <p style={{ fontSize: 19, color: "var(--white-dim)", marginTop: 40, maxWidth: 520, lineHeight: 1.65, fontWeight: 300 }}>
+              Blueprint is a coaching system for men who refuse to leave who they become to chance. We measure the six things that actually matter, tell you the truth, and hand you the next move — every day, until the numbers move.
+            </p>
+            <div style={{ display: "flex", gap: 16, marginTop: 48 }}>
+              <button className="bp-btn bp-btn-blue" onClick={() => setView("onboarding")}>
+                Begin the assessment <ArrowRight size={14} strokeWidth={1.8}/>
+              </button>
+              <button className="bp-btn bp-btn-ghost">Read the manifesto</button>
+            </div>
+            <div style={{ marginTop: 72, display: "flex", gap: 48 }}>
+              {[
+                ["12,847", "men enrolled"],
+                ["+14 pts", "avg. 60-day gain"],
+                ["87%", "complete the protocol"],
+              ].map(([n, l]) => (
+                <div key={l}>
+                  <div className="bp-serif" style={{ fontSize: 32, fontWeight: 400, letterSpacing: "-0.03em" }}>{n}</div>
+                  <div className="bp-label" style={{ marginTop: 4 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Spec card */}
+          <div style={{ position: "relative", aspectRatio: "4/5.2" }}>
+            <div className="bp-card bp-fade-up" style={{ height: "100%", padding: 36, animationDelay: "0.3s", background: "var(--ink-2)" }}>
+              <div className="bp-corner bp-corner-tl" />
+              <div className="bp-corner bp-corner-tr" />
+              <div className="bp-corner bp-corner-bl" />
+              <div className="bp-corner bp-corner-br" />
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", paddingBottom: 20, borderBottom: "1px solid var(--line)" }}>
+                <div>
+                  <div className="bp-mono" style={{ fontSize: 9, color: "var(--blue-bright)" }}>MEMBER · 0047</div>
+                  <div className="bp-serif" style={{ fontSize: 24, fontWeight: 400, marginTop: 4, letterSpacing: "-0.02em" }}>Daniel R.</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>ASSESSMENT</div>
+                  <div className="bp-serif" style={{ fontSize: 44, lineHeight: 1, fontWeight: 300, color: "var(--blue-bright)" }}>71</div>
+                </div>
+              </div>
+
+              {/* Portrait */}
+              <div style={{ position: "relative", aspectRatio: "1.15/1", marginTop: 24, background: "var(--ink)", border: "1px solid var(--line)", overflow: "hidden" }}>
+                <svg viewBox="0 0 240 200" style={{ width: "100%", height: "100%" }}>
+                  <defs>
+                    <pattern id="pg" width="12" height="12" patternUnits="userSpaceOnUse">
+                      <path d="M 12 0 L 0 0 0 12" fill="none" stroke="#16161e" strokeWidth="0.5"/>
+                    </pattern>
+                  </defs>
+                  <rect width="240" height="200" fill="url(#pg)"/>
+                  <g stroke="#5f8aff" strokeWidth="0.6" fill="none">
+                    <ellipse cx="120" cy="80" rx="32" ry="40"/>
+                    <path d="M 88 118 Q 120 100 152 118 L 162 200 L 78 200 Z"/>
+                    <line x1="120" y1="40" x2="120" y2="120" strokeDasharray="1 3" opacity="0.5"/>
+                  </g>
+                  {/* Annotations */}
+                  <g stroke="#9ab4ff" strokeWidth="0.5" fill="none" opacity="0.9">
+                    <line x1="152" y1="62" x2="205" y2="48"/>
+                    <circle cx="152" cy="62" r="1.5" fill="#9ab4ff"/>
+                    <line x1="88" y1="102" x2="35" y2="118"/>
+                    <circle cx="88" cy="102" r="1.5" fill="#9ab4ff"/>
+                  </g>
+                  <text x="208" y="46" fill="#9ab4ff" fontSize="6" fontFamily="JetBrains Mono" letterSpacing="0.5">JAW</text>
+                  <text x="10" y="122" fill="#9ab4ff" fontSize="6" fontFamily="JetBrains Mono" letterSpacing="0.5">FRAME</text>
+                  <rect x="0" y="0" width="240" height="0.8" fill="#3b6cff" opacity="0.6" style={{ animation: "bp-scan 4s infinite" }}/>
+                </svg>
+              </div>
+
+              <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+                {[["Face", 68], ["Style", 74], ["Profile", 62], ["Dialogue", 77], ["Presence", 70]].map(([k, v]) => (
+                  <div key={k}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 12 }}>
+                      <span style={{ color: "var(--white-dim)" }}>{k}</span>
+                      <span className="bp-mono" style={{ color: "var(--blue-bright)" }}>{String(v).padStart(2, "0")}</span>
+                    </div>
+                    <div className="bp-bar"><div className="bp-bar-fill" style={{ width: `${v}%` }}/></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="bp-hairline" />
+
+      {/* System */}
+      <section style={{ position: "relative", padding: "120px 56px", maxWidth: 1440, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 80, marginBottom: 80 }}>
+          <div>
+            <div className="bp-label">§ 01 · The system</div>
+            <h2 className="bp-serif" style={{ fontSize: 68, margin: "24px 0 0", fontWeight: 300, lineHeight: 1, letterSpacing: "-0.035em" }}>
+              Six <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>honest</em><br/>
+              measurements.
+            </h2>
+          </div>
+          <p style={{ fontSize: 18, color: "var(--white-dim)", alignSelf: "end", lineHeight: 1.7, fontWeight: 300 }}>
+            Most advice is flattering or cruel; rarely useful. Blueprint scores what actually moves outcomes — without pretending one number explains a man. Each measurement is paired with the next concrete action.
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--line)", border: "1px solid var(--line)" }}>
+          {[
+            { icon: Eye, label: "Face & Frame", desc: "Structure, grooming, expression, composition. Scored per photograph, ranked against the cohort." },
+            { icon: Sparkles, label: "Style", desc: "Fit, colour, silhouette. Measured against skin tone and context — not against trends." },
+            { icon: User, label: "Profile", desc: "Bio, prompts, the order of photographs. Every element rewritten until it converts." },
+            { icon: MessageCircle, label: "Dialogue", desc: "Paste the thread. We show the exact line where it stalled — and the rewrite that closes it." },
+            { icon: Zap, label: "Presence", desc: "Hedge words. Over-explaining. The tells she reads before you finish the sentence." },
+            { icon: Target, label: "Daily Practice", desc: "One concrete action, before sunset. The streak breaks and the score bleeds. No exceptions." },
+          ].map((item, i) => (
+            <div key={i} style={{ background: "var(--ink)", padding: 48, minHeight: 280, position: "relative", transition: "background 0.4s" }}
+                 onMouseEnter={e => e.currentTarget.style.background = "var(--ink-2)"}
+                 onMouseLeave={e => e.currentTarget.style.background = "var(--ink)"}>
+              <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", position: "absolute", top: 24, right: 28 }}>
+                0{i + 1} / 06
+              </div>
+              <item.icon size={22} style={{ color: "var(--blue-bright)", marginBottom: 32 }} strokeWidth={1.2}/>
+              <h3 className="bp-serif" style={{ fontSize: 28, margin: "0 0 14px", fontWeight: 400, letterSpacing: "-0.02em" }}>{item.label}</h3>
+              <p style={{ color: "var(--white-dim)", fontSize: 14, lineHeight: 1.7, margin: 0, fontWeight: 300 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="bp-hairline" />
+
+      {/* Pull quote */}
+      <section style={{ position: "relative", padding: "140px 56px", maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+        <div className="bp-label bp-label-blue" style={{ marginBottom: 40 }}>◆ FROM THE MANIFESTO</div>
+        <blockquote className="bp-serif" style={{ fontSize: 52, lineHeight: 1.15, fontWeight: 300, margin: 0, letterSpacing: "-0.03em" }}>
+          "The work of becoming is not loud. It is not performed. It is the <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>quiet, daily</em> accumulation of honest feedback and small, deliberate acts."
+        </blockquote>
+      </section>
+
+      <div className="bp-hairline" />
+
+      {/* Membership / Pricing */}
+      <section style={{ position: "relative", padding: "120px 56px", maxWidth: 1440, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", marginBottom: 72 }}>
+          <div>
+            <div className="bp-label">§ 02 · Membership</div>
+            <h2 className="bp-serif" style={{ fontSize: 68, margin: "24px 0 0", fontWeight: 300, lineHeight: 1, letterSpacing: "-0.035em" }}>
+              Three <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>tiers</em>.<br/>
+              Three commitments.
+            </h2>
+          </div>
+          <div className="bp-mono" style={{ fontSize: 11, color: "var(--gray)", textAlign: "right" }}>
+            SEVEN-DAY REFUND<br/>
+            CANCEL ANYTIME
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          {[
+            {
+              tier: "Core", price: "14.99", annual: "99", tag: "The foundation",
+              feats: ["Unlimited coaching dialogue", "Weekly re-assessment", "Unlimited photograph scoring", "Daily practice & streak", "Progression tracking"],
+              cta: "Begin",
+            },
+            {
+              tier: "Pro", price: "39.99", annual: "349", tag: "Most subscribed",
+              feats: ["Everything in Core", "Real-time date mode", "Match & reply analytics", "Priority model (Opus)", "Monthly coach review film"],
+              cta: "Subscribe", featured: true
+            },
+            {
+              tier: "Private", price: "149", annual: "1,490", tag: "By application",
+              feats: ["Everything in Pro", "Weekly one-to-one coach call", "Bespoke photography plan", "Live workshops access", "Private member cohort"],
+              cta: "Apply",
+            },
+          ].map((plan, i) => (
+            <div key={i} className="bp-card" style={{
+              padding: 40,
+              background: plan.featured ? "var(--ink-2)" : "var(--ink)",
+              border: plan.featured ? "1px solid var(--blue)" : "1px solid var(--line)",
+              position: "relative",
+            }}>
+              {plan.featured && (
+                <>
+                  <div className="bp-corner bp-corner-tl" />
+                  <div className="bp-corner bp-corner-tr" />
+                  <div className="bp-corner bp-corner-bl" />
+                  <div className="bp-corner bp-corner-br" />
+                  <div style={{ position: "absolute", top: -11, left: 32, padding: "4px 12px", background: "var(--blue)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "JetBrains Mono" }}>
+                    Most subscribed
+                  </div>
+                </>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 32 }}>
+                <div>
+                  <div className="bp-serif" style={{ fontSize: 36, fontWeight: 400, letterSpacing: "-0.025em" }}>{plan.tier}</div>
+                  <div className="bp-mono" style={{ fontSize: 10, color: plan.featured ? "var(--blue-bright)" : "var(--gray-low)", marginTop: 6, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                    {plan.tag}
+                  </div>
+                </div>
+                {plan.featured && <Crown size={16} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5}/>}
+              </div>
+
+              <div style={{ paddingBottom: 28, marginBottom: 28, borderBottom: "1px solid var(--line)" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  <span className="bp-mono" style={{ fontSize: 14, color: "var(--gray)" }}>$</span>
+                  <span className="bp-serif" style={{ fontSize: 64, fontWeight: 300, lineHeight: 1, letterSpacing: "-0.04em" }}>{plan.price}</span>
+                  <span style={{ fontSize: 14, color: "var(--gray)", marginLeft: 4 }}>/month</span>
+                </div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 10, letterSpacing: "0.15em" }}>
+                  OR ${plan.annual} / YEAR · SAVE 30%
+                </div>
+              </div>
+
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", minHeight: 200 }}>
+                {plan.feats.map((f, j) => (
+                  <li key={j} style={{ display: "flex", gap: 14, padding: "11px 0", fontSize: 14, borderBottom: j < plan.feats.length - 1 ? "1px solid var(--line)" : "none", color: "var(--white-dim)" }}>
+                    <Check size={12} style={{ color: "var(--blue-bright)", marginTop: 5, flexShrink: 0 }} strokeWidth={2}/>
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                className={`bp-btn ${plan.featured ? "bp-btn-blue" : "bp-btn-ghost"}`}
+                style={{ width: "100%", justifyContent: "space-between" }}
+                onClick={() => setView("onboarding")}
+              >
+                {plan.cta}
+                <ArrowRight size={14} strokeWidth={1.8}/>
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="bp-hairline" />
+
+      {/* Closing */}
+      <section style={{ position: "relative", padding: "140px 56px", textAlign: "center" }}>
+        <div className="bp-label bp-label-blue" style={{ marginBottom: 32 }}>◆ THE WORK WILL NOT WAIT</div>
+        <h2 className="bp-serif" style={{ fontSize: 96, fontWeight: 300, lineHeight: 0.95, margin: 0, letterSpacing: "-0.04em" }}>
+          Stop guessing.<br/>
+          Start <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>becoming</em>.
+        </h2>
+        <button className="bp-btn bp-btn-blue" style={{ padding: "20px 40px", fontSize: 14, marginTop: 56 }} onClick={() => setView("onboarding")}>
+          Begin the assessment <ArrowRight size={14} strokeWidth={1.8}/>
+        </button>
+      </section>
+
+      <footer style={{ borderTop: "1px solid var(--line)", padding: "48px 56px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="bp-mark" style={{ width: 22, height: 22 }} />
+          <div>
+            <div className="bp-serif" style={{ fontSize: 16 }}>Blueprint</div>
+            <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>© MMXXVI · ALL RIGHTS RESERVED</div>
+          </div>
+        </div>
+        <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", display: "flex", gap: 28, letterSpacing: "0.15em" }}>
+          <a>TERMS</a><a>PRIVACY</a><a>REFUNDS</a><a>CONTACT</a>
+        </div>
+      </footer>
+    </div>
+  );
+
+  // ============ ONBOARDING ============
+  const Onboarding = () => {
+    const steps = [
+      { q: "What brings you to Blueprint?", opts: ["I'm matching with no one", "I match but don't convert", "Recently rejected. Still stings.", "Rebuilding after a breakup", "I'm already good — I want better"] },
+      { q: "Your age bracket.", opts: ["18–22", "23–27", "28–32", "33–37", "38 and above"] },
+      { q: "Which platforms are you on?", opts: ["Hinge", "Tinder", "Bumble", "Feeld / niche", "Between apps right now"] },
+      { q: "How direct should the feedback be?", opts: ["Gentle — I'm fragile right now", "Direct — no softening", "Unvarnished — break me and rebuild"] },
+    ];
+    const step = steps[onboardStep];
+
+    if (onboardStep >= steps.length) {
+      return (
+        <div className="bp-root" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+          <div className="bp-grid" style={{ position: "absolute", inset: 0, opacity: 0.3 }}/>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(59, 108, 255, 0.1), transparent 60%)" }}/>
+          <div style={{ textAlign: "center", maxWidth: 640, padding: 48, position: "relative" }} className="bp-slow-fade">
+            <div className="bp-label bp-label-blue" style={{ marginBottom: 24 }}>◆ ASSESSMENT COMPLETE</div>
+            <h2 className="bp-serif" style={{ fontSize: 88, fontWeight: 300, lineHeight: 0.95, margin: 0, letterSpacing: "-0.04em" }}>
+              Welcome <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>in</em>.
+            </h2>
+            <p style={{ color: "var(--white-dim)", fontSize: 17, margin: "32px 0 48px", lineHeight: 1.7, fontWeight: 300 }}>
+              Provisional score: <span className="bp-mono" style={{ color: "var(--blue-bright)" }}>71</span>. Tier IV.<br/>
+              It will sharpen as you feed the system. Let us begin.
+            </p>
+            <button className="bp-btn bp-btn-blue" style={{ padding: "18px 36px" }} onClick={() => setView("app")}>
+              Enter Blueprint <ArrowRight size={14} strokeWidth={1.8}/>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bp-root" style={{ minHeight: "100vh", position: "relative" }}>
+        <div className="bp-grid" style={{ position: "absolute", inset: 0, opacity: 0.25 }}/>
+
+        <div style={{ position: "relative", padding: "28px 56px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div className="bp-mark" style={{ width: 26, height: 26 }} />
+            <span className="bp-serif" style={{ fontSize: 20, fontWeight: 400 }}>Blueprint</span>
+          </div>
+          <div className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)", letterSpacing: "0.18em" }}>
+            ASSESSMENT · {String(onboardStep + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
+          </div>
+          <button className="bp-btn bp-btn-ghost" style={{ padding: "8px 16px", fontSize: 11 }} onClick={() => setView("landing")}>Exit</button>
+        </div>
+
+        <div style={{ position: "relative", maxWidth: 760, margin: "0 auto", padding: "100px 32px" }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 80 }}>
+            {steps.map((_, i) => (
+              <div key={i} style={{ flex: 1, height: 1, background: i <= onboardStep ? "var(--blue)" : "var(--line)", transition: "background 0.4s" }}/>
+            ))}
+          </div>
+
+          <div key={onboardStep} className="bp-fade-up">
+            <div className="bp-label bp-label-blue" style={{ marginBottom: 28 }}>QUESTION · 0{onboardStep + 1}</div>
+            <h2 className="bp-serif" style={{ fontSize: 64, fontWeight: 300, lineHeight: 1.05, margin: "0 0 64px", letterSpacing: "-0.035em" }}>
+              {step.q}
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {step.opts.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => setOnboardStep(onboardStep + 1)}
+                  style={{
+                    background: "var(--ink-2)",
+                    border: "1px solid var(--line)",
+                    color: "var(--white)",
+                    padding: "24px 28px",
+                    textAlign: "left",
+                    fontSize: 16,
+                    fontFamily: "inherit",
+                    fontWeight: 400,
+                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    transition: "all 0.25s",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--blue)"; e.currentTarget.style.background = "var(--ink-3)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--line)"; e.currentTarget.style.background = "var(--ink-2)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+                    <span className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)", width: 16, letterSpacing: "0.1em" }}>
+                      {String.fromCharCode(65 + i)}
+                    </span>
+                    <span>{opt}</span>
+                  </div>
+                  <ChevronRight size={14} style={{ color: "var(--gray-low)" }} strokeWidth={1.5}/>
+                </button>
+              ))}
+            </div>
+
+            {onboardStep > 0 && (
+              <button onClick={() => setOnboardStep(onboardStep - 1)}
+                style={{ marginTop: 40, background: "none", border: "none", color: "var(--gray)", cursor: "pointer", fontSize: 12, fontFamily: "inherit", letterSpacing: "0.05em" }}>
+                ← Previous
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ============ APP INTERIOR ============
+  const ScoreRing = ({ value, size = 180 }) => {
+    const r = size / 2 - 4;
+    const c = 2 * Math.PI * r;
+    const offset = c - (value / 100) * c;
+    return (
+      <svg className="bp-score-ring" width={size} height={size}>
+        <circle cx={size/2} cy={size/2} r={r} stroke="var(--line)" strokeWidth="1"/>
+        <circle cx={size/2} cy={size/2} r={r} stroke="var(--blue)" strokeWidth="1.5"
+          strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.2, 0.8, 0.2, 1)" }}/>
+      </svg>
+    );
+  };
+
+  const HomeTab = () => (
+    <div style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto" }} className="bp-fade-up">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", marginBottom: 40, paddingBottom: 28, borderBottom: "1px solid var(--line)" }}>
+        <div>
+          <div className="bp-label">FRIDAY · 17 APRIL 2026</div>
+          <h1 className="bp-serif" style={{ fontSize: 52, fontWeight: 300, margin: "14px 0 0", lineHeight: 1, letterSpacing: "-0.035em" }}>
+            Good morning, <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>Daniel</em>.
+          </h1>
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ padding: "14px 20px", background: "var(--ink-2)", border: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 12 }}>
+            <Flame size={15} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5}/>
+            <div>
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>STREAK</div>
+              <div className="bp-serif" style={{ fontSize: 20, lineHeight: 1 }}>{streak} days</div>
+            </div>
+          </div>
+          <div style={{ padding: "14px 20px", background: "var(--ink-2)", border: "1px solid var(--blue-deep)", display: "flex", alignItems: "center", gap: 12 }}>
+            <Award size={15} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5}/>
+            <div>
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--blue-bright)" }}>TIER</div>
+              <div className="bp-serif" style={{ fontSize: 20, lineHeight: 1 }}>IV</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+        {/* Score */}
+        <div className="bp-card" style={{ padding: 40, position: "relative" }}>
+          <div className="bp-corner bp-corner-tl" />
+          <div className="bp-corner bp-corner-br" />
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
+            <div>
+              <div className="bp-label">Assessment</div>
+              <div className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)", marginTop: 10, display: "flex", alignItems: "center", gap: 8 }}>
+                <ArrowUp size={11} strokeWidth={2}/> +3 this week
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>PERCENTILE</div>
+              <div className="bp-serif" style={{ fontSize: 22, fontWeight: 400, color: "var(--blue-bright)" }}>72</div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
+            <div style={{ position: "relative", width: 180, height: 180 }}>
+              <ScoreRing value={scores.overall}/>
+              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div className="bp-serif" style={{ fontSize: 80, fontWeight: 300, lineHeight: 1, color: "var(--white)", letterSpacing: "-0.04em" }}>
+                  {scores.overall}
+                </div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 4, letterSpacing: "0.2em" }}>OF 100</div>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16 }}>
+              {[["Face", scores.face], ["Style", scores.style], ["Profile", scores.profile], ["Dialogue", scores.text], ["Presence", scores.confidence]].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
+                    <span style={{ color: "var(--white-dim)" }}>{k}</span>
+                    <span className="bp-mono" style={{ color: v >= 70 ? "var(--blue-bright)" : "var(--white)" }}>{String(v).padStart(2, "0")}</span>
+                  </div>
+                  <div className="bp-bar"><div className="bp-bar-fill" style={{ width: `${v}%` }}/></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Practice */}
+        <div className="bp-card" style={{ padding: 40, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
+            <div className="bp-label">Today's practice</div>
+            <div className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)" }}>
+              {missions.filter(m => m.done).length} / {missions.length}
+            </div>
+          </div>
+
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+            {missions.map((m) => (
+              <div key={m.id} onClick={() => toggleMission(m.id)}
+                style={{
+                  padding: 20,
+                  background: m.done ? "var(--ink-3)" : "var(--ink)",
+                  border: m.done ? "1px solid var(--blue-deep)" : "1px solid var(--line)",
+                  display: "flex", gap: 16, cursor: "pointer",
+                  transition: "all 0.25s", opacity: m.done ? 0.55 : 1,
+                }}
+                onMouseEnter={e => !m.done && (e.currentTarget.style.borderColor = "var(--blue)")}
+                onMouseLeave={e => !m.done && (e.currentTarget.style.borderColor = "var(--line)")}
+              >
+                <div style={{ marginTop: 1 }}>
+                  {m.done
+                    ? <div style={{ width: 16, height: 16, background: "var(--blue)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Check size={11} strokeWidth={2.5} style={{ color: "var(--ink)" }}/>
+                      </div>
+                    : <div style={{ width: 16, height: 16, border: "1px solid var(--gray-low)" }}/>
+                  }
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="bp-mono" style={{ fontSize: 9, color: "var(--blue-bright)", marginBottom: 6, letterSpacing: "0.15em" }}>
+                    {m.category.toUpperCase()} · +{m.pts}
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--white-dim)", textDecoration: m.done ? "line-through" : "none", fontWeight: 300 }}>
+                    {m.title}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Photo lab + Activity */}
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20 }}>
+        <div className="bp-card" style={{ padding: 44, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, right: 0, width: 240, height: "100%", background: "radial-gradient(ellipse at right, rgba(59, 108, 255, 0.12), transparent 60%)" }}/>
+          <div style={{ position: "relative" }}>
+            <div className="bp-label">Photograph studio</div>
+            <h3 className="bp-serif" style={{ fontSize: 38, margin: "16px 0 16px", fontWeight: 300, letterSpacing: "-0.025em", lineHeight: 1.05 }}>
+              Upload a frame. <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>Receive the verdict</em> in eight seconds.
+            </h3>
+            <p style={{ color: "var(--white-dim)", fontSize: 14, margin: "0 0 32px", maxWidth: 480, fontWeight: 300, lineHeight: 1.65 }}>
+              Per-frame scoring. Specific feedback. The one adjustment that moves it ten points.
+            </p>
+            <button className="bp-btn bp-btn-blue" onClick={handlePhotoRate}>
+              <Upload size={13} strokeWidth={1.8}/> Upload photograph
+            </button>
+          </div>
+        </div>
+
+        <div className="bp-card" style={{ padding: 28 }}>
+          <div className="bp-label" style={{ marginBottom: 20 }}>Recent</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {[
+              { t: "Photograph scored", d: "Frame 04 · 82 / 100" },
+              { t: "Practice complete", d: "Opener deployed × 3" },
+              { t: "Coach review", d: "Mara thread · rewritten" },
+              { t: "Streak +1", d: "Day 12 · holding" },
+            ].map((a, i) => (
+              <div key={i} style={{ display: "flex", gap: 14, paddingBottom: 16, borderBottom: i < 3 ? "1px solid var(--line)" : "none" }}>
+                <div style={{ width: 1, background: "var(--blue)", alignSelf: "stretch" }}/>
+                <div>
+                  <div style={{ fontSize: 13, color: "var(--white-dim)", fontWeight: 400 }}>{a.t}</div>
+                  <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 4 }}>{a.d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const CoachTab = () => (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", maxWidth: 940, margin: "0 auto", padding: "48px 56px 0" }}>
+      <div style={{ paddingBottom: 28, borderBottom: "1px solid var(--line)", marginBottom: 28, display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+        <div>
+          <div className="bp-label">Coach · private channel</div>
+          <h1 className="bp-serif" style={{ fontSize: 52, fontWeight: 300, margin: "14px 0 0", lineHeight: 1, letterSpacing: "-0.035em" }}>
+            Say it <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>straight</em>.
+          </h1>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 6, height: 6, background: "var(--blue)", borderRadius: "50%", animation: "bp-pulse 2s infinite" }}/>
+          <span className="bp-mono" style={{ fontSize: 10, color: "var(--blue-bright)", letterSpacing: "0.18em" }}>CHANNEL OPEN</span>
+        </div>
+      </div>
+
+      <div className="bp-scroll" style={{ flex: 1, overflowY: "auto", paddingBottom: 32 }}>
+        {chatMessages.map((m, i) => (
+          <div key={i} className="bp-fade-up" style={{ marginBottom: 28, display: "flex", gap: 18, flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+            <div style={{
+              width: 36, height: 36, flexShrink: 0,
+              border: m.role === "coach" ? "1px solid var(--blue)" : "1px solid var(--line)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "var(--ink-2)",
+            }}>
+              {m.role === "coach"
+                ? <div style={{ width: 12, height: 12, border: "1px solid var(--blue-bright)", position: "relative" }}>
+                    <div style={{ position: "absolute", inset: 2, background: "var(--blue-bright)" }}/>
+                  </div>
+                : <User size={14} style={{ color: "var(--gray)" }} strokeWidth={1.5}/>
+              }
+            </div>
+            <div style={{ maxWidth: "72%" }}>
+              <div className="bp-mono" style={{ fontSize: 10, color: m.role === "coach" ? "var(--blue-bright)" : "var(--gray-low)", marginBottom: 8, textAlign: m.role === "user" ? "right" : "left", letterSpacing: "0.18em" }}>
+                {m.role === "coach" ? "BLUEPRINT" : "YOU"}
+              </div>
+              <div style={{
+                padding: "18px 22px",
+                background: m.role === "coach" ? "var(--ink-2)" : "var(--ink-3)",
+                border: m.role === "coach" ? "1px solid var(--line-bright)" : "1px solid var(--line)",
+                fontSize: 15, lineHeight: 1.7, fontWeight: 300, color: "var(--white-dim)",
+              }}>
+                {m.text}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div ref={chatEndRef}/>
+      </div>
+
+      <div style={{ padding: "20px 0 40px", borderTop: "1px solid var(--line)" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+          {["Review my last thread", "What's the next move?", "Rewrite my bio", "I got rejected"].map((q, i) => (
+            <button key={i} className="bp-btn bp-btn-ghost" style={{ padding: "9px 16px", fontSize: 12 }}
+              onClick={() => setChatInput(q)}>
+              {q}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 12 }}>
+          <input className="bp-input"
+            placeholder="Paste a thread, ask anything..."
+            value={chatInput}
+            onChange={e => setChatInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && sendMessage()}
+            style={{ flex: 1 }}
+          />
+          <button className="bp-btn bp-btn-blue" onClick={sendMessage} style={{ padding: "14px 22px" }}>
+            <Send size={14} strokeWidth={1.8}/>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ProgressTab = () => {
+    const history = [62, 63, 63, 65, 66, 64, 67, 68, 68, 69, 70, 71];
+    return (
+      <div style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto" }} className="bp-fade-up">
+        <div style={{ paddingBottom: 28, borderBottom: "1px solid var(--line)", marginBottom: 40 }}>
+          <div className="bp-label">§ Progress</div>
+          <h1 className="bp-serif" style={{ fontSize: 52, fontWeight: 300, margin: "14px 0 0", lineHeight: 1, letterSpacing: "-0.035em" }}>
+            Twelve days of <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>measurable</em> change.
+          </h1>
+        </div>
+
+        <div className="bp-card" style={{ padding: 40, marginBottom: 20, position: "relative" }}>
+          <div className="bp-corner bp-corner-tl"/>
+          <div className="bp-corner bp-corner-br"/>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 36 }}>
+            <div>
+              <div className="bp-label">Trajectory</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginTop: 12 }}>
+                <span className="bp-serif" style={{ fontSize: 88, fontWeight: 300, lineHeight: 1, letterSpacing: "-0.04em" }}>71</span>
+                <span className="bp-mono" style={{ fontSize: 12, color: "var(--blue-bright)" }}>+9 from day 01</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 32 }}>
+              <div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)" }}>PEAK</div>
+                <div className="bp-serif" style={{ fontSize: 26, fontWeight: 400 }}>71</div>
+              </div>
+              <div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)" }}>BASELINE</div>
+                <div className="bp-serif" style={{ fontSize: 26, fontWeight: 400 }}>62</div>
+              </div>
+            </div>
+          </div>
+
+          <svg viewBox="0 0 600 200" style={{ width: "100%", height: 220 }}>
+            <defs>
+              <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#3b6cff" stopOpacity="0.3"/>
+                <stop offset="100%" stopColor="#3b6cff" stopOpacity="0"/>
+              </linearGradient>
+            </defs>
+            {[0, 1, 2, 3].map(i => (
+              <line key={i} x1="0" x2="600" y1={50 * i} y2={50 * i} stroke="#1e1e27" strokeWidth="0.5" strokeDasharray="2 6"/>
+            ))}
+            <path
+              d={`M 0 ${200 - (history[0] - 50) * 3} ${history.map((v, i) => `L ${i * (600 / (history.length - 1))} ${200 - (v - 50) * 3}`).join(" ")} L 600 200 L 0 200 Z`}
+              fill="url(#area)"
+            />
+            <path
+              d={`M 0 ${200 - (history[0] - 50) * 3} ${history.map((v, i) => `L ${i * (600 / (history.length - 1))} ${200 - (v - 50) * 3}`).join(" ")}`}
+              fill="none" stroke="#5f8aff" strokeWidth="1.5"
+            />
+            {history.map((v, i) => (
+              <g key={i}>
+                <circle cx={i * (600 / (history.length - 1))} cy={200 - (v - 50) * 3} r="3" fill="#050507" stroke="#5f8aff" strokeWidth="1.5"/>
+                {i === history.length - 1 && (
+                  <circle cx={i * (600 / (history.length - 1))} cy={200 - (v - 50) * 3} r="8" fill="none" stroke="#5f8aff" strokeWidth="0.8" opacity="0.6">
+                    <animate attributeName="r" from="3" to="14" dur="1.8s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from="0.7" to="0" dur="1.8s" repeatCount="indefinite"/>
+                  </circle>
+                )}
+              </g>
+            ))}
+          </svg>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14 }}>
+            {["Day 01", "Day 04", "Day 08", "Day 12"].map(d => (
+              <span key={d} className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", letterSpacing: "0.12em" }}>{d.toUpperCase()}</span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+          {[
+            { label: "Match rate", value: "12%", change: "+4%", icon: Target },
+            { label: "Reply rate", value: "61%", change: "+11%", icon: MessageCircle },
+            { label: "Date conversion", value: "24%", change: "+7%", icon: Trophy },
+          ].map((s, i) => (
+            <div key={i} className="bp-card" style={{ padding: 32 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 24 }}>
+                <div className="bp-label">{s.label}</div>
+                <s.icon size={14} style={{ color: "var(--gray-low)" }} strokeWidth={1.4}/>
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+                <span className="bp-serif" style={{ fontSize: 56, fontWeight: 300, letterSpacing: "-0.04em" }}>{s.value}</span>
+                <span className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)" }}>{s.change}</span>
+              </div>
+              <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 14, letterSpacing: "0.15em" }}>
+                VS 14-DAY BASELINE
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const CommunityTab = () => (
+    <div style={{ padding: "48px 56px", maxWidth: 1040, margin: "0 auto" }} className="bp-fade-up">
+      <div style={{ paddingBottom: 28, borderBottom: "1px solid var(--line)", marginBottom: 40 }}>
+        <div className="bp-label">§ Cohort</div>
+        <h1 className="bp-serif" style={{ fontSize: 52, fontWeight: 300, margin: "14px 0 0", lineHeight: 1, letterSpacing: "-0.035em" }}>
+          Men who <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>shipped</em> this week.
+        </h1>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {[
+          { name: "Marcus K.", days: 47, tier: "VI", win: "Third date confirmed. The bio rewrite changed everything — went from one match a week to eight. The system works if you run it.", score: 84, delta: 19 },
+          { name: "Ray P.", days: 23, tier: "IV", win: "Sent the direct callback. She said yes in twelve minutes. The coach was right — the hedge words were bleeding me dry.", score: 72, delta: 11 },
+          { name: "Anonymous", days: 9, tier: "III", win: "First match in four months. Not who I'd have picked — but it feels good to just be seen. Holding the streak.", score: 65, delta: 6 },
+          { name: "Tom V.", days: 61, tier: "VII", win: "Engaged. Started Blueprint last year after a hard breakup. Thank you for the framing work. Signing off.", score: 88, delta: 24 },
+        ].map((w, i) => (
+          <div key={i} className="bp-card" style={{ padding: 28, display: "flex", gap: 24, alignItems: "start", position: "relative" }}>
+            <div style={{ width: 56, height: 56, border: "1px solid var(--line-bright)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "var(--ink)" }}>
+              <div className="bp-serif" style={{ fontSize: 22, fontWeight: 400, color: "var(--blue-bright)" }}>{w.name[0]}</div>
+              <div className="bp-mono" style={{ fontSize: 8, color: "var(--gray-low)", marginTop: 2, letterSpacing: "0.1em" }}>TIER {w.tier}</div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                <div>
+                  <div className="bp-serif" style={{ fontSize: 18, fontWeight: 400 }}>{w.name}</div>
+                  <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 4, letterSpacing: "0.12em" }}>
+                    DAY {w.days} · SCORE <span style={{ color: "var(--blue-bright)" }}>{w.score}</span> · <span style={{ color: "var(--blue-bright)" }}>+{w.delta}</span>
+                  </div>
+                </div>
+                <button style={{ background: "none", border: "1px solid var(--line)", padding: "6px 12px", color: "var(--gray)", fontSize: 10, fontFamily: "JetBrains Mono", cursor: "pointer", letterSpacing: "0.1em" }}>
+                  ◦ 47
+                </button>
+              </div>
+              <p style={{ margin: 0, fontSize: 14, color: "var(--white-dim)", lineHeight: 1.7, fontWeight: 300 }}>{w.win}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 32, padding: 32, border: "1px dashed var(--line-bright)", textAlign: "center" }}>
+        <div className="bp-label" style={{ marginBottom: 16 }}>Share your progress</div>
+        <button className="bp-btn bp-btn-ghost">
+          <Plus size={13} strokeWidth={1.8}/> Post to the cohort
+        </button>
+      </div>
+    </div>
+  );
+
+  const AppInterior = () => (
+    <div className="bp-root" style={{ display: "flex", minHeight: "100vh" }}>
+      <aside style={{
+        width: 260, background: "var(--ink-2)", borderRight: "1px solid var(--line)",
+        padding: "28px 0", display: "flex", flexDirection: "column",
+        position: "sticky", top: 0, height: "100vh",
+      }}>
+        <div style={{ padding: "0 28px 28px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="bp-mark" style={{ width: 26, height: 26 }} />
+          <div>
+            <div className="bp-serif" style={{ fontSize: 17, fontWeight: 400 }}>Blueprint</div>
+            <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)", marginTop: 1, letterSpacing: "0.1em" }}>CORE · DAY 12</div>
+          </div>
+        </div>
+
+        <div style={{ padding: "24px 28px", borderBottom: "1px solid var(--line)" }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+            <div style={{ width: 42, height: 42, border: "1px solid var(--line-bright)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--ink)" }}>
+              <span className="bp-serif" style={{ fontSize: 18, fontWeight: 400, color: "var(--blue-bright)" }}>D</span>
+            </div>
+            <div>
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)", letterSpacing: "0.12em" }}>MEMBER 0047</div>
+              <div className="bp-serif" style={{ fontSize: 15, fontWeight: 400, marginTop: 1 }}>Daniel R.</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <span className="bp-mono" style={{ fontSize: 10, color: "var(--gray)", letterSpacing: "0.12em" }}>TIER IV</span>
+              <span className="bp-mono" style={{ fontSize: 10, color: "var(--blue-bright)" }}>71</span>
+            </div>
+            <div className="bp-bar"><div className="bp-bar-fill" style={{ width: "71%" }}/></div>
+          </div>
+        </div>
+
+        <nav style={{ padding: "20px 0", flex: 1 }}>
+          {[
+            { id: "home", icon: Home, label: "Dashboard" },
+            { id: "coach", icon: Radio, label: "Coach" },
+            { id: "progress", icon: BarChart3, label: "Progress" },
+            { id: "community", icon: Users, label: "Cohort" },
+          ].map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              style={{
+                width: "100%", padding: "14px 28px",
+                background: activeTab === t.id ? "var(--ink-3)" : "transparent",
+                border: "none",
+                borderLeft: activeTab === t.id ? "1px solid var(--blue)" : "1px solid transparent",
+                color: activeTab === t.id ? "var(--white)" : "var(--gray)",
+                display: "flex", alignItems: "center", gap: 14,
+                fontSize: 13, cursor: "pointer",
+                fontFamily: "'Manrope', sans-serif", fontWeight: 400,
+                letterSpacing: "0.01em", transition: "all 0.2s",
+              }}>
+              <t.icon size={14} strokeWidth={1.5}/>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div style={{ padding: "24px 28px 0", borderTop: "1px solid var(--line)" }}>
+          <div className="bp-label" style={{ marginBottom: 14 }}>Upgrade</div>
+          <div style={{ padding: 18, background: "var(--ink-3)", border: "1px solid var(--blue-deep)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <Crown size={13} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5}/>
+              <span className="bp-serif" style={{ fontSize: 16, fontWeight: 400 }}>Pro tier</span>
+            </div>
+            <p style={{ margin: "0 0 14px", fontSize: 11, color: "var(--white-dim)", lineHeight: 1.6, fontWeight: 300 }}>
+              Real-time date mode. Monthly coach review.
+            </p>
+            <button className="bp-btn bp-btn-blue" style={{ width: "100%", justifyContent: "center", padding: "10px", fontSize: 11 }}>
+              Subscribe
+            </button>
+          </div>
+          <button onClick={() => setView("landing")}
+            style={{ marginTop: 20, background: "none", border: "none", color: "var(--gray-low)", fontSize: 10, cursor: "pointer", fontFamily: "JetBrains Mono", padding: 0, letterSpacing: "0.15em" }}>
+            ← EXIT
+          </button>
+        </div>
+      </aside>
+
+      <main style={{ flex: 1, background: "var(--ink)", display: "flex", flexDirection: "column" }}>
+        {activeTab === "home" && <HomeTab/>}
+        {activeTab === "coach" && <CoachTab/>}
+        {activeTab === "progress" && <ProgressTab/>}
+        {activeTab === "community" && <CommunityTab/>}
+      </main>
+
+      {/* Photo rating modal */}
+      {showRatingModal && (
+        <div onClick={() => { setShowRatingModal(false); setRatedPhoto(null); }}
+          style={{ position: "fixed", inset: 0, background: "rgba(5, 5, 7, 0.85)", backdropFilter: "blur(10px)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 24 }}>
+          <div onClick={e => e.stopPropagation()} className="bp-card bp-fade-up"
+            style={{ maxWidth: 600, width: "100%", padding: 48, background: "var(--ink-2)", position: "relative" }}>
+            <div className="bp-corner bp-corner-tl"/>
+            <div className="bp-corner bp-corner-tr"/>
+            <div className="bp-corner bp-corner-bl"/>
+            <div className="bp-corner bp-corner-br"/>
+            <button onClick={() => { setShowRatingModal(false); setRatedPhoto(null); }}
+              style={{ position: "absolute", top: 16, right: 16, background: "none", border: "1px solid var(--line)", padding: 8, color: "var(--gray)", cursor: "pointer" }}>
+              <X size={13} strokeWidth={1.5}/>
+            </button>
+
+            {!ratedPhoto ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ width: 100, height: 100, border: "1px solid var(--blue)", margin: "0 auto 32px", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent, rgba(59, 108, 255, 0.2), transparent)", backgroundSize: "200% 100%", animation: "bp-shimmer 1.8s infinite" }}/>
+                  <Camera size={28} style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "var(--blue-bright)" }} strokeWidth={1.3}/>
+                </div>
+                <div className="bp-label bp-label-blue" style={{ marginBottom: 14 }}>Analysing</div>
+                <div className="bp-serif" style={{ fontSize: 30, fontWeight: 400, letterSpacing: "-0.02em" }}>Reading the frame</div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 20, letterSpacing: "0.18em" }}>
+                  LIGHT · COMPOSITION · EXPRESSION · STYLE
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="bp-label bp-label-blue" style={{ marginBottom: 12 }}>Verdict · frame 04</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 20, marginBottom: 6 }}>
+                  <span className="bp-serif" style={{ fontSize: 96, fontWeight: 300, color: "var(--white)", lineHeight: 1, letterSpacing: "-0.045em" }}>
+                    {ratedPhoto.score}
+                  </span>
+                  <span className="bp-serif" style={{ fontSize: 22, fontWeight: 400, fontStyle: "italic", color: "var(--blue-bright)" }}>{ratedPhoto.verdict}</span>
+                </div>
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", marginBottom: 32, letterSpacing: "0.15em" }}>
+                  PERCENTILE 78 · ACTIVE COHORT
+                </div>
+
+                <div style={{ marginBottom: 24 }}>
+                  <div className="bp-label" style={{ marginBottom: 14, color: "var(--blue-bright)" }}>What works</div>
+                  {ratedPhoto.positives.map((p, i) => (
+                    <div key={i} style={{ display: "flex", gap: 14, padding: "10px 0", fontSize: 14, color: "var(--white-dim)", borderBottom: "1px solid var(--line)", fontWeight: 300 }}>
+                      <Check size={13} style={{ color: "var(--blue-bright)", marginTop: 4 }} strokeWidth={2}/>
+                      <span>{p}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginBottom: 28 }}>
+                  <div className="bp-label" style={{ marginBottom: 14, color: "var(--gray)" }}>What to adjust</div>
+                  {ratedPhoto.negatives.map((p, i) => (
+                    <div key={i} style={{ display: "flex", gap: 14, padding: "10px 0", fontSize: 14, color: "var(--white-dim)", borderBottom: "1px solid var(--line)", fontWeight: 300 }}>
+                      <X size={13} style={{ color: "var(--gray)", marginTop: 4 }} strokeWidth={2}/>
+                      <span>{p}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ padding: 24, background: "var(--ink)", border: "1px solid var(--blue)", marginBottom: 28, position: "relative" }}>
+                  <div className="bp-corner bp-corner-tl" style={{ width: 8, height: 8 }}/>
+                  <div className="bp-corner bp-corner-br" style={{ width: 8, height: 8 }}/>
+                  <div className="bp-label bp-label-blue" style={{ marginBottom: 12 }}>The move</div>
+                  <div style={{ fontSize: 14, lineHeight: 1.7, color: "var(--white-dim)", fontWeight: 300 }}>{ratedPhoto.action}</div>
+                </div>
+
+                <button className="bp-btn bp-btn-blue" style={{ width: "100%", justifyContent: "center" }}
+                  onClick={() => { setShowRatingModal(false); setRatedPhoto(null); }}>
+                  Understood
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      <style>{styles}</style>
+      {view === "landing" && <Landing/>}
+      {view === "onboarding" && <Onboarding/>}
+      {view === "app" && <AppInterior/>}
+    </>
+  );
+};
+
+export default BlueprintApp;
