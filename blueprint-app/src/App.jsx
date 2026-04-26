@@ -1,3 +1,4 @@
+import "./styles/blueprint.css";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Flame, Camera, MessageCircle, Target, Trophy, Check, ChevronRight,
@@ -71,178 +72,7 @@ const BlueprintApp = () => {
     }, 1800);
   };
 
-  // ============ STYLES ============
-  const styles = `
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-    * { box-sizing: border-box; }
-
-    .bp-root {
-      --ink: #050507;
-      --ink-2: #0b0b0e;
-      --ink-3: #111116;
-      --ink-4: #1a1a21;
-      --line: #1e1e27;
-      --line-bright: #2a2a36;
-      --white: #f5f5f7;
-      --white-dim: #c4c4cc;
-      --gray: #8a8a95;
-      --gray-low: #52525c;
-      --gray-lowest: #2e2e37;
-      --blue: #3b6cff;
-      --blue-bright: #5f8aff;
-      --blue-glow: #9ab4ff;
-      --blue-deep: #1f3a99;
-      --blue-ice: #dfe8ff;
-      font-family: 'Manrope', sans-serif;
-      color: var(--white);
-      background: var(--ink);
-      min-height: 100vh;
-      line-height: 1.5;
-      letter-spacing: -0.005em;
-      font-weight: 400;
-    }
-    .bp-serif { font-family: 'Fraunces', serif; font-optical-sizing: auto; letter-spacing: -0.025em; }
-    .bp-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
-
-    @keyframes bp-scan { 0% { transform: translateY(-100%); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateY(100%); opacity: 0; } }
-    @keyframes bp-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
-    @keyframes bp-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes bp-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    @keyframes bp-slow-fade { from { opacity: 0; } to { opacity: 1; } }
-    .bp-fade-up { animation: bp-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-    .bp-slow-fade { animation: bp-slow-fade 1.2s ease both; }
-
-    .bp-grid {
-      background-image:
-        linear-gradient(rgba(30, 30, 39, 0.6) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(30, 30, 39, 0.6) 1px, transparent 1px);
-      background-size: 80px 80px;
-    }
-
-    .bp-btn {
-      font-family: 'Manrope', sans-serif;
-      font-weight: 500;
-      font-size: 13px;
-      letter-spacing: 0.01em;
-      padding: 16px 28px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .bp-btn-primary {
-      background: var(--white);
-      color: var(--ink);
-    }
-    .bp-btn-primary:hover {
-      background: var(--blue);
-      color: var(--white);
-    }
-    .bp-btn-blue {
-      background: var(--blue);
-      color: var(--white);
-    }
-    .bp-btn-blue:hover {
-      background: var(--blue-bright);
-      transform: translateY(-1px);
-    }
-    .bp-btn-ghost {
-      background: transparent;
-      color: var(--white);
-      border: 1px solid var(--line-bright);
-    }
-    .bp-btn-ghost:hover {
-      border-color: var(--white);
-    }
-
-    .bp-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--gray);
-    }
-    .bp-label-white { color: var(--white); }
-    .bp-label-blue { color: var(--blue-bright); }
-
-    .bp-card {
-      background: var(--ink-2);
-      border: 1px solid var(--line);
-      position: relative;
-    }
-
-    .bp-corner {
-      position: absolute;
-      width: 10px; height: 10px;
-      border: 1px solid var(--blue);
-    }
-    .bp-corner-tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
-    .bp-corner-tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
-    .bp-corner-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
-    .bp-corner-br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
-
-    .bp-bar {
-      height: 1px;
-      background: var(--line);
-      position: relative;
-      overflow: hidden;
-    }
-    .bp-bar-fill {
-      height: 100%;
-      background: var(--blue);
-      transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .bp-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
-    .bp-scroll::-webkit-scrollbar-track { background: transparent; }
-    .bp-scroll::-webkit-scrollbar-thumb { background: var(--line-bright); }
-
-    input.bp-input, textarea.bp-input {
-      background: var(--ink);
-      border: 1px solid var(--line-bright);
-      color: var(--white);
-      padding: 16px 20px;
-      font-family: 'Manrope', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      width: 100%;
-      outline: none;
-      transition: all 0.2s;
-    }
-    input.bp-input:focus, textarea.bp-input:focus {
-      border-color: var(--blue);
-    }
-
-    .bp-score-ring { transform: rotate(-90deg); }
-    .bp-score-ring circle { fill: none; }
-
-    .bp-mark {
-      width: 32px; height: 32px;
-      position: relative;
-      display: inline-block;
-    }
-    .bp-mark::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 1px solid var(--white);
-    }
-    .bp-mark::after {
-      content: '';
-      position: absolute;
-      inset: 7px;
-      background: var(--blue);
-    }
-
-    .bp-hairline {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--line-bright), transparent);
-    }
-  `;
+  
 
   // ============ LANDING ============
   const Landing = () => (
@@ -1205,13 +1035,12 @@ const BlueprintApp = () => {
   );
 
   return (
-    <>
-      <style>{styles}</style>
-      {view === "landing" && <Landing/>}
-      {view === "onboarding" && <Onboarding/>}
-      {view === "app" && <AppInterior/>}
-    </>
-  );
+  <>
+    {view === "landing" && <Landing/>}
+    {view === "onboarding" && <Onboarding/>}
+    {view === "app" && <AppInterior/>}
+  </>
+);
 };
 
 export default BlueprintApp;
