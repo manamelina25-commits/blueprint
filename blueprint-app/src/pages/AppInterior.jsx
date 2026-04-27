@@ -1,38 +1,94 @@
-
-import { initialScores } from "../data/scores";
-import { initialMissions } from "../data/missions";
-import { progressHistory } from "../data/progressHistory";
-import { recentActivities } from "../data/recentActivities";
-import { communityWins } from "../data/communityWins";
-import { initialChatMessages } from "../data/chatMessages";
-import { mockPhotoRating } from "../data/mockPhotoRating";
 import { useEffect, useRef, useState } from "react";
 import {
-  Flame,
+  BarChart3,
   Camera,
-  MessageCircle,
-  Target,
-  Trophy,
   Check,
   Crown,
-  User,
-  Send,
-  ArrowUp,
   Home,
-  BarChart3,
-  Users,
-  Plus,
-  Upload,
-  X,
-  Award,
+  MessageCircle,
   Radio,
+  Send,
+  Target,
+  Trophy,
+  Upload,
+  Users,
+  X,
 } from "lucide-react";
 
-import ScoreRing from "../components/ScoreRing";
+function ScoreRing({ value, size = 180 }) {
+  const radius = size / 2 - 5;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
 
-export default function AppInterior({ setView }) {
+  return (
+    <svg width={size} height={size} className="bp-score-ring">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="var(--line)"
+        strokeWidth="1"
+        fill="none"
+      />
+
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="var(--blue-bright)"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        style={{
+          transition: "stroke-dashoffset 1.2s cubic-bezier(0.2, 0.8, 0.2, 1)",
+        }}
+      />
+    </svg>
+  );
+}
+
+export default function AppInterior({ onLogout }) {
   const [activeTab, setActiveTab] = useState("home");
-  const streak = 12;
+
+  const [missions, setMissions] = useState([
+    {
+      id: 1,
+      title: "Rewrite your first prompt using one concrete story.",
+      category: "Profile",
+      pts: 4,
+      done: false,
+    },
+    {
+      id: 2,
+      title: "Photograph one outfit in natural light.",
+      category: "Style",
+      pts: 3,
+      done: true,
+    },
+    {
+      id: 3,
+      title: "Send one direct callback instead of a safe question.",
+      category: "Dialogue",
+      pts: 5,
+      done: false,
+    },
+  ]);
+
+  const [chatInput, setChatInput] = useState("");
+
+  const [chatMessages, setChatMessages] = useState([
+    {
+      role: "coach",
+      text: "Paste a thread, describe the situation, or ask for the next move. I will be direct.",
+    },
+  ]);
+
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratedPhoto, setRatedPhoto] = useState(null);
+
+  const chatEndRef = useRef(null);
 
   const scores = {
     overall: 71,
@@ -42,42 +98,6 @@ export default function AppInterior({ setView }) {
     text: 77,
     confidence: 70,
   };
-
-  const [missions, setMissions] = useState([
-    {
-      id: 1,
-      category: "profile",
-      pts: 4,
-      title: "Rewrite your first prompt using one concrete story.",
-      done: false,
-    },
-    {
-      id: 2,
-      category: "style",
-      pts: 3,
-      title: "Photograph one outfit in natural light.",
-      done: true,
-    },
-    {
-      id: 3,
-      category: "dialogue",
-      pts: 5,
-      title: "Send one direct callback instead of a safe question.",
-      done: false,
-    },
-  ]);
-
-  const [chatMessages, setChatMessages] = useState([
-    {
-      role: "coach",
-      text: "Paste a thread, describe the situation, or ask for the next move. I will be direct.",
-    },
-  ]);
-
-  const [chatInput, setChatInput] = useState("");
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [ratedPhoto, setRatedPhoto] = useState(null);
-  const chatEndRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -100,7 +120,10 @@ export default function AppInterior({ setView }) {
 
     setChatMessages((currentMessages) => [
       ...currentMessages,
-      { role: "user", text: cleanInput },
+      {
+        role: "user",
+        text: cleanInput,
+      },
     ]);
 
     setChatInput("");
@@ -110,8 +133,7 @@ export default function AppInterior({ setView }) {
         ...currentMessages,
         {
           role: "coach",
-          text:
-            "Good. The pattern is clear: you are over-explaining before there is enough tension. Cut the justification, keep the frame, and make the next line specific.",
+          text: "Good. The pattern is clear: you are over-explaining before there is enough tension. Cut the justification, keep the frame, and make the next line specific.",
         },
       ]);
     }, 700);
@@ -138,981 +160,292 @@ export default function AppInterior({ setView }) {
         action:
           "Retake this frame near a plain wall, keep the same outfit, lower your chin slightly, and relax the mouth. That should move the frame closer to 88.",
       });
-    }, 1800);
+    }, 1400);
   }
 
-  const HomeTab = () => (
-    <div
-      style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto" }}
-      className="bp-fade-up"
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-          marginBottom: 40,
-          paddingBottom: 28,
-          borderBottom: "1px solid var(--line)",
-        }}
-      >
-        <div>
-          <div className="bp-label">FRIDAY · 17 APRIL 2026</div>
-          <h1
-            className="bp-serif"
-            style={{
-              fontSize: 52,
-              fontWeight: 300,
-              margin: "14px 0 0",
-              lineHeight: 1,
-              letterSpacing: "-0.035em",
-            }}
-          >
-            Good morning,{" "}
-            <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>
-              Daniel
-            </em>
-            .
-          </h1>
+  function HomeTab() {
+    return (
+      <div className="bp-fade-up" style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", marginBottom: 40, paddingBottom: 28, borderBottom: "1px solid var(--line)" }}>
+          <div>
+            <div className="bp-label">TODAY</div>
+            <h1 className="bp-serif" style={{ fontSize: 52, fontWeight: 300, margin: "14px 0 0", lineHeight: 1, letterSpacing: "-0.035em" }}>
+              Good morning, <em style={{ color: "var(--blue-bright)" }}>Daniel</em>.
+            </h1>
+          </div>
+
+          <div className="bp-label bp-label-blue">DAY 12 · STREAK ACTIVE</div>
         </div>
 
-        <div style={{ display: "flex", gap: 12 }}>
-          <div
-            style={{
-              padding: "14px 20px",
-              background: "var(--ink-2)",
-              border: "1px solid var(--line)",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <Flame size={15} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5} />
-            <div>
-              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>
-                STREAK
-              </div>
-              <div className="bp-serif" style={{ fontSize: 20, lineHeight: 1 }}>
-                {streak} days
-              </div>
-            </div>
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: 24 }}>
+          <div className="bp-card" style={{ padding: 32, position: "relative" }}>
+            <div className="bp-corner bp-corner-tl" />
+            <div className="bp-corner bp-corner-br" />
 
-          <div
-            style={{
-              padding: "14px 20px",
-              background: "var(--ink-2)",
-              border: "1px solid var(--blue-deep)",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-            }}
-          >
-            <Award size={15} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5} />
-            <div>
-              <div className="bp-mono" style={{ fontSize: 9, color: "var(--blue-bright)" }}>
-                TIER
-              </div>
-              <div className="bp-serif" style={{ fontSize: 20, lineHeight: 1 }}>
-                IV
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 20,
-          marginBottom: 20,
-        }}
-      >
-        <div className="bp-card" style={{ padding: 40, position: "relative" }}>
-          <div className="bp-corner bp-corner-tl" />
-          <div className="bp-corner bp-corner-br" />
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
-            <div>
-              <div className="bp-label">Assessment</div>
-              <div
-                className="bp-mono"
-                style={{
-                  fontSize: 11,
-                  color: "var(--blue-bright)",
-                  marginTop: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                <ArrowUp size={11} strokeWidth={2} /> +3 this week
-              </div>
+            <div className="bp-label" style={{ marginBottom: 24 }}>
+              Overall assessment
             </div>
 
-            <div style={{ textAlign: "right" }}>
-              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>
-                PERCENTILE
-              </div>
-              <div
-                className="bp-serif"
-                style={{ fontSize: 22, fontWeight: 400, color: "var(--blue-bright)" }}
-              >
-                72
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
-            <div style={{ position: "relative", width: 180, height: 180 }}>
+            <div style={{ position: "relative", width: 180, height: 180, margin: "0 auto 28px" }}>
               <ScoreRing value={scores.overall} />
 
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div
-                  className="bp-serif"
-                  style={{
-                    fontSize: 80,
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    color: "var(--white)",
-                    letterSpacing: "-0.04em",
-                  }}
-                >
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
+                <div className="bp-serif" style={{ fontSize: 52, color: "var(--blue-bright)", lineHeight: 1 }}>
                   {scores.overall}
                 </div>
-                <div
-                  className="bp-mono"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--gray-low)",
-                    marginTop: 4,
-                    letterSpacing: "0.2em",
-                  }}
-                >
-                  OF 100
+                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)", letterSpacing: "0.16em" }}>
+                  TIER IV
                 </div>
               </div>
             </div>
 
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 16 }}>
-              {[
-                ["Face", scores.face],
-                ["Style", scores.style],
-                ["Profile", scores.profile],
-                ["Dialogue", scores.text],
-                ["Presence", scores.confidence],
-              ].map(([label, value]) => (
-                <div key={label}>
+            {[
+              ["Face", scores.face],
+              ["Style", scores.style],
+              ["Profile", scores.profile],
+              ["Text", scores.text],
+              ["Confidence", scores.confidence],
+            ].map(([label, value]) => (
+              <div key={label} style={{ marginBottom: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ color: "var(--white-dim)", fontSize: 13 }}>{label}</span>
+                  <span className="bp-mono" style={{ color: "var(--blue-bright)", fontSize: 11 }}>{value}</span>
+                </div>
+                <div className="bp-bar">
+                  <div className="bp-bar-fill" style={{ width: `${value}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bp-card" style={{ padding: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+              <div>
+                <div className="bp-label">Mission queue</div>
+                <h2 className="bp-serif" style={{ fontSize: 34, fontWeight: 300, margin: "8px 0 0" }}>
+                  Today's work
+                </h2>
+              </div>
+
+              <Target size={22} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5} />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {missions.map((mission) => (
+                <button
+                  key={mission.id}
+                  onClick={() => toggleMission(mission.id)}
+                  style={{
+                    border: "1px solid var(--line)",
+                    background: mission.done ? "rgba(59, 108, 255, 0.08)" : "var(--ink-2)",
+                    color: "var(--white)",
+                    padding: 20,
+                    textAlign: "left",
+                    cursor: "pointer",
+                    display: "flex",
+                    gap: 16,
+                    alignItems: "center",
+                  }}
+                >
                   <div
                     style={{
+                      width: 24,
+                      height: 24,
+                      border: mission.done ? "1px solid var(--blue-bright)" : "1px solid var(--line-bright)",
                       display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 6,
-                      fontSize: 13,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    <span style={{ color: "var(--white-dim)" }}>{label}</span>
-                    <span
-                      className="bp-mono"
-                      style={{
-                        color: value >= 70 ? "var(--blue-bright)" : "var(--white)",
-                      }}
-                    >
-                      {String(value).padStart(2, "0")}
-                    </span>
+                    {mission.done && <Check size={14} style={{ color: "var(--blue-bright)" }} />}
                   </div>
 
-                  <div className="bp-bar">
-                    <div className="bp-bar-fill" style={{ width: `${value}%` }} />
+                  <div style={{ flex: 1 }}>
+                    <div className="bp-mono" style={{ fontSize: 9, color: "var(--blue-bright)", letterSpacing: "0.14em", marginBottom: 6 }}>
+                      {mission.category.toUpperCase()} · +{mission.pts} PTS
+                    </div>
+
+                    <div style={{ color: "var(--white-dim)", fontSize: 15 }}>
+                      {mission.title}
+                    </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-          </div>
-        </div>
 
-        <div className="bp-card" style={{ padding: 40, display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
-            <div className="bp-label">Today's practice</div>
-            <div className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)" }}>
-              {missions.filter((mission) => mission.done).length} / {missions.length}
-            </div>
-          </div>
-
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
-            {missions.map((mission) => (
-              <div
-                key={mission.id}
-                onClick={() => toggleMission(mission.id)}
-                style={{
-                  padding: 20,
-                  background: mission.done ? "var(--ink-3)" : "var(--ink)",
-                  border: mission.done
-                    ? "1px solid var(--blue-deep)"
-                    : "1px solid var(--line)",
-                  display: "flex",
-                  gap: 16,
-                  cursor: "pointer",
-                  transition: "all 0.25s",
-                  opacity: mission.done ? 0.55 : 1,
-                }}
-                onMouseEnter={(event) => {
-                  if (!mission.done) {
-                    event.currentTarget.style.borderColor = "var(--blue)";
-                  }
-                }}
-                onMouseLeave={(event) => {
-                  if (!mission.done) {
-                    event.currentTarget.style.borderColor = "var(--line)";
-                  }
-                }}
-              >
-                <div style={{ marginTop: 1 }}>
-                  {mission.done ? (
-                    <div
-                      style={{
-                        width: 16,
-                        height: 16,
-                        background: "var(--blue)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Check size={11} strokeWidth={2.5} style={{ color: "var(--ink)" }} />
-                    </div>
-                  ) : (
-                    <div style={{ width: 16, height: 16, border: "1px solid var(--gray-low)" }} />
-                  )}
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <div
-                    className="bp-mono"
-                    style={{
-                      fontSize: 9,
-                      color: "var(--blue-bright)",
-                      marginBottom: 6,
-                      letterSpacing: "0.15em",
-                    }}
-                  >
-                    {mission.category.toUpperCase()} · +{mission.pts}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 14,
-                      color: "var(--white-dim)",
-                      textDecoration: mission.done ? "line-through" : "none",
-                      fontWeight: 300,
-                    }}
-                  >
-                    {mission.title}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20 }}>
-        <div className="bp-card" style={{ padding: 44, position: "relative", overflow: "hidden" }}>
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: 240,
-              height: "100%",
-              background:
-                "radial-gradient(ellipse at right, rgba(59, 108, 255, 0.12), transparent 60%)",
-            }}
-          />
-
-          <div style={{ position: "relative" }}>
-            <div className="bp-label">Photograph studio</div>
-            <h3
-              className="bp-serif"
-              style={{
-                fontSize: 38,
-                margin: "16px 0 16px",
-                fontWeight: 300,
-                letterSpacing: "-0.025em",
-                lineHeight: 1.05,
-              }}
-            >
-              Upload a frame.{" "}
-              <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>
-                Receive the verdict
-              </em>{" "}
-              in eight seconds.
-            </h3>
-
-            <p
-              style={{
-                color: "var(--white-dim)",
-                fontSize: 14,
-                margin: "0 0 32px",
-                maxWidth: 480,
-                fontWeight: 300,
-                lineHeight: 1.65,
-              }}
-            >
-              Per-frame scoring. Specific feedback. The one adjustment that moves it ten points.
-            </p>
-
-            <button className="bp-btn bp-btn-blue" onClick={handlePhotoRate}>
-              <Upload size={13} strokeWidth={1.8} /> Upload photograph
-            </button>
-          </div>
-        </div>
-
-        <div className="bp-card" style={{ padding: 28 }}>
-          <div className="bp-label" style={{ marginBottom: 20 }}>
-            Recent
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {[
-              { title: "Photograph scored", detail: "Frame 04 · 82 / 100" },
-              { title: "Practice complete", detail: "Opener deployed × 3" },
-              { title: "Coach review", detail: "Mara thread · rewritten" },
-              { title: "Streak +1", detail: "Day 12 · holding" },
-            ].map((activity, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  paddingBottom: 16,
-                  borderBottom: index < 3 ? "1px solid var(--line)" : "none",
-                }}
-              >
-                <div style={{ width: 1, background: "var(--blue)", alignSelf: "stretch" }} />
-                <div>
-                  <div style={{ fontSize: 13, color: "var(--white-dim)", fontWeight: 400 }}>
-                    {activity.title}
-                  </div>
-                  <div
-                    className="bp-mono"
-                    style={{ fontSize: 10, color: "var(--gray-low)", marginTop: 4 }}
-                  >
-                    {activity.detail}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const CoachTab = () => (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        maxWidth: 940,
-        margin: "0 auto",
-        padding: "48px 56px 0",
-      }}
-    >
-      <div
-        style={{
-          paddingBottom: 28,
-          borderBottom: "1px solid var(--line)",
-          marginBottom: 28,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "end",
-        }}
-      >
-        <div>
-          <div className="bp-label">Coach · private channel</div>
-          <h1
-            className="bp-serif"
-            style={{
-              fontSize: 52,
-              fontWeight: 300,
-              margin: "14px 0 0",
-              lineHeight: 1,
-              letterSpacing: "-0.035em",
-            }}
-          >
-            Say it{" "}
-            <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>
-              straight
-            </em>
-            .
-          </h1>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 6,
-              height: 6,
-              background: "var(--blue)",
-              borderRadius: "50%",
-              animation: "bp-pulse 2s infinite",
-            }}
-          />
-          <span
-            className="bp-mono"
-            style={{ fontSize: 10, color: "var(--blue-bright)", letterSpacing: "0.18em" }}
-          >
-            CHANNEL OPEN
-          </span>
-        </div>
-      </div>
-
-      <div className="bp-scroll" style={{ flex: 1, overflowY: "auto", paddingBottom: 32 }}>
-        {chatMessages.map((message, index) => (
-          <div
-            key={index}
-            className="bp-fade-up"
-            style={{
-              marginBottom: 28,
-              display: "flex",
-              gap: 18,
-              flexDirection: message.role === "user" ? "row-reverse" : "row",
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                flexShrink: 0,
-                border:
-                  message.role === "coach"
-                    ? "1px solid var(--blue)"
-                    : "1px solid var(--line)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "var(--ink-2)",
-              }}
-            >
-              {message.role === "coach" ? (
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    border: "1px solid var(--blue-bright)",
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 2,
-                      background: "var(--blue-bright)",
-                    }}
-                  />
-                </div>
-              ) : (
-                <User size={14} style={{ color: "var(--gray)" }} strokeWidth={1.5} />
-              )}
-            </div>
-
-            <div style={{ maxWidth: "72%" }}>
-              <div
-                className="bp-mono"
-                style={{
-                  fontSize: 10,
-                  color:
-                    message.role === "coach" ? "var(--blue-bright)" : "var(--gray-low)",
-                  marginBottom: 8,
-                  textAlign: message.role === "user" ? "right" : "left",
-                  letterSpacing: "0.18em",
-                }}
-              >
-                {message.role === "coach" ? "BLUEPRINT" : "YOU"}
-              </div>
-
-              <div
-                style={{
-                  padding: "18px 22px",
-                  background: message.role === "coach" ? "var(--ink-2)" : "var(--ink-3)",
-                  border:
-                    message.role === "coach"
-                      ? "1px solid var(--line-bright)"
-                      : "1px solid var(--line)",
-                  fontSize: 15,
-                  lineHeight: 1.7,
-                  fontWeight: 300,
-                  color: "var(--white-dim)",
-                }}
-              >
-                {message.text}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <div ref={chatEndRef} />
-      </div>
-
-      <div style={{ padding: "20px 0 40px", borderTop: "1px solid var(--line)" }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-          {[
-            "Review my last thread",
-            "What's the next move?",
-            "Rewrite my bio",
-            "I got rejected",
-          ].map((question, index) => (
             <button
-              key={index}
-              className="bp-btn bp-btn-ghost"
-              style={{ padding: "9px 16px", fontSize: 12 }}
-              onClick={() => setChatInput(question)}
+              onClick={handlePhotoRate}
+              className="bp-btn bp-btn-blue"
+              style={{ marginTop: 28 }}
             >
-              {question}
+              <Camera size={14} /> Rate a photo
             </button>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", gap: 12 }}>
-          <input
-            className="bp-input"
-            placeholder="Paste a thread, ask anything..."
-            value={chatInput}
-            onChange={(event) => setChatInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                sendMessage();
-              }
-            }}
-            style={{ flex: 1 }}
-          />
-
-          <button className="bp-btn bp-btn-blue" onClick={sendMessage} style={{ padding: "14px 22px" }}>
-            <Send size={14} strokeWidth={1.8} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProgressTab = () => {
-    const history = [62, 63, 63, 65, 66, 64, 67, 68, 68, 69, 70, 71];
-
-    return (
-      <div
-        style={{ padding: "48px 56px", maxWidth: 1280, margin: "0 auto" }}
-        className="bp-fade-up"
-      >
-        <div
-          style={{
-            paddingBottom: 28,
-            borderBottom: "1px solid var(--line)",
-            marginBottom: 40,
-          }}
-        >
-          <div className="bp-label">§ Progress</div>
-          <h1
-            className="bp-serif"
-            style={{
-              fontSize: 52,
-              fontWeight: 300,
-              margin: "14px 0 0",
-              lineHeight: 1,
-              letterSpacing: "-0.035em",
-            }}
-          >
-            Twelve days of{" "}
-            <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>
-              measurable
-            </em>{" "}
-            change.
-          </h1>
-        </div>
-
-        <div className="bp-card" style={{ padding: 40, marginBottom: 20, position: "relative" }}>
-          <div className="bp-corner bp-corner-tl" />
-          <div className="bp-corner bp-corner-br" />
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 36 }}>
-            <div>
-              <div className="bp-label">Trajectory</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginTop: 12 }}>
-                <span
-                  className="bp-serif"
-                  style={{
-                    fontSize: 88,
-                    fontWeight: 300,
-                    lineHeight: 1,
-                    letterSpacing: "-0.04em",
-                  }}
-                >
-                  71
-                </span>
-                <span className="bp-mono" style={{ fontSize: 12, color: "var(--blue-bright)" }}>
-                  +9 from day 01
-                </span>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 32 }}>
-              <div>
-                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)" }}>
-                  PEAK
-                </div>
-                <div className="bp-serif" style={{ fontSize: 26, fontWeight: 400 }}>
-                  71
-                </div>
-              </div>
-
-              <div>
-                <div className="bp-mono" style={{ fontSize: 10, color: "var(--gray-low)" }}>
-                  BASELINE
-                </div>
-                <div className="bp-serif" style={{ fontSize: 26, fontWeight: 400 }}>
-                  62
-                </div>
-              </div>
-            </div>
           </div>
-
-          <svg viewBox="0 0 600 200" style={{ width: "100%", height: 220 }}>
-            <defs>
-              <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#3b6cff" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#3b6cff" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-
-            {[0, 1, 2, 3].map((index) => (
-              <line
-                key={index}
-                x1="0"
-                x2="600"
-                y1={50 * index}
-                y2={50 * index}
-                stroke="#1e1e27"
-                strokeWidth="0.5"
-                strokeDasharray="2 6"
-              />
-            ))}
-
-            <path
-              d={`M 0 ${200 - (history[0] - 50) * 3} ${history
-                .map(
-                  (value, index) =>
-                    `L ${index * (600 / (history.length - 1))} ${
-                      200 - (value - 50) * 3
-                    }`
-                )
-                .join(" ")} L 600 200 L 0 200 Z`}
-              fill="url(#area)"
-            />
-
-            <path
-              d={`M 0 ${200 - (history[0] - 50) * 3} ${history
-                .map(
-                  (value, index) =>
-                    `L ${index * (600 / (history.length - 1))} ${
-                      200 - (value - 50) * 3
-                    }`
-                )
-                .join(" ")}`}
-              fill="none"
-              stroke="#5f8aff"
-              strokeWidth="1.5"
-            />
-
-            {history.map((value, index) => (
-              <g key={index}>
-                <circle
-                  cx={index * (600 / (history.length - 1))}
-                  cy={200 - (value - 50) * 3}
-                  r="3"
-                  fill="#050507"
-                  stroke="#5f8aff"
-                  strokeWidth="1.5"
-                />
-
-                {index === history.length - 1 && (
-                  <circle
-                    cx={index * (600 / (history.length - 1))}
-                    cy={200 - (value - 50) * 3}
-                    r="8"
-                    fill="none"
-                    stroke="#5f8aff"
-                    strokeWidth="0.8"
-                    opacity="0.6"
-                  >
-                    <animate attributeName="r" from="3" to="14" dur="1.8s" repeatCount="indefinite" />
-                    <animate
-                      attributeName="opacity"
-                      from="0.7"
-                      to="0"
-                      dur="1.8s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                )}
-              </g>
-            ))}
-          </svg>
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 14 }}>
-            {["Day 01", "Day 04", "Day 08", "Day 12"].map((day) => (
-              <span
-                key={day}
-                className="bp-mono"
-                style={{ fontSize: 10, color: "var(--gray-low)", letterSpacing: "0.12em" }}
-              >
-                {day.toUpperCase()}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-          {[
-            { label: "Match rate", value: "12%", change: "+4%", icon: Target },
-            { label: "Reply rate", value: "61%", change: "+11%", icon: MessageCircle },
-            { label: "Date conversion", value: "24%", change: "+7%", icon: Trophy },
-          ].map((stat, index) => {
-            const Icon = stat.icon;
-
-            return (
-              <div key={index} className="bp-card" style={{ padding: 32 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "start",
-                    marginBottom: 24,
-                  }}
-                >
-                  <div className="bp-label">{stat.label}</div>
-                  <Icon size={14} style={{ color: "var(--gray-low)" }} strokeWidth={1.4} />
-                </div>
-
-                <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-                  <span
-                    className="bp-serif"
-                    style={{ fontSize: 56, fontWeight: 300, letterSpacing: "-0.04em" }}
-                  >
-                    {stat.value}
-                  </span>
-                  <span className="bp-mono" style={{ fontSize: 11, color: "var(--blue-bright)" }}>
-                    {stat.change}
-                  </span>
-                </div>
-
-                <div
-                  className="bp-mono"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--gray-low)",
-                    marginTop: 14,
-                    letterSpacing: "0.15em",
-                  }}
-                >
-                  VS 14-DAY BASELINE
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
     );
-  };
+  }
 
-  const CommunityTab = () => (
-    <div
-      style={{ padding: "48px 56px", maxWidth: 1040, margin: "0 auto" }}
-      className="bp-fade-up"
-    >
-      <div
-        style={{
-          paddingBottom: 28,
-          borderBottom: "1px solid var(--line)",
-          marginBottom: 40,
-        }}
-      >
-        <div className="bp-label">§ Cohort</div>
-        <h1
-          className="bp-serif"
-          style={{
-            fontSize: 52,
-            fontWeight: 300,
-            margin: "14px 0 0",
-            lineHeight: 1,
-            letterSpacing: "-0.035em",
-          }}
-        >
-          Men who{" "}
-          <em style={{ fontStyle: "italic", color: "var(--blue-bright)" }}>
-            shipped
-          </em>{" "}
-          this week.
-        </h1>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {[
-          {
-            name: "Marcus K.",
-            days: 47,
-            tier: "VI",
-            win:
-              "Third date confirmed. The bio rewrite changed everything — went from one match a week to eight. The system works if you run it.",
-            score: 84,
-            delta: 19,
-          },
-          {
-            name: "Ray P.",
-            days: 23,
-            tier: "IV",
-            win:
-              "Sent the direct callback. She said yes in twelve minutes. The coach was right — the hedge words were bleeding me dry.",
-            score: 72,
-            delta: 11,
-          },
-          {
-            name: "Anonymous",
-            days: 9,
-            tier: "III",
-            win:
-              "First match in four months. Not who I'd have picked — but it feels good to just be seen. Holding the streak.",
-            score: 65,
-            delta: 6,
-          },
-          {
-            name: "Tom V.",
-            days: 61,
-            tier: "VII",
-            win:
-              "Engaged. Started Blueprint last year after a hard breakup. Thank you for the framing work. Signing off.",
-            score: 88,
-            delta: 24,
-          },
-        ].map((win, index) => (
-          <div
-            key={index}
-            className="bp-card"
-            style={{ padding: 28, display: "flex", gap: 24, alignItems: "start", position: "relative" }}
-          >
-            <div
-              style={{
-                width: 56,
-                height: 56,
-                border: "1px solid var(--line-bright)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                background: "var(--ink)",
-              }}
-            >
-              <div
-                className="bp-serif"
-                style={{ fontSize: 22, fontWeight: 400, color: "var(--blue-bright)" }}
-              >
-                {win.name[0]}
-              </div>
-              <div
-                className="bp-mono"
-                style={{
-                  fontSize: 8,
-                  color: "var(--gray-low)",
-                  marginTop: 2,
-                  letterSpacing: "0.1em",
-                }}
-              >
-                TIER {win.tier}
-              </div>
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <div>
-                  <div className="bp-serif" style={{ fontSize: 18, fontWeight: 400 }}>
-                    {win.name}
-                  </div>
-
-                  <div
-                    className="bp-mono"
-                    style={{
-                      fontSize: 10,
-                      color: "var(--gray-low)",
-                      marginTop: 4,
-                      letterSpacing: "0.12em",
-                    }}
-                  >
-                    DAY {win.days} · SCORE{" "}
-                    <span style={{ color: "var(--blue-bright)" }}>{win.score}</span> ·{" "}
-                    <span style={{ color: "var(--blue-bright)" }}>+{win.delta}</span>
-                  </div>
-                </div>
-
-                <button
-                  style={{
-                    background: "none",
-                    border: "1px solid var(--line)",
-                    padding: "6px 12px",
-                    color: "var(--gray)",
-                    fontSize: 10,
-                    fontFamily: "JetBrains Mono",
-                    cursor: "pointer",
-                    letterSpacing: "0.1em",
-                  }}
-                >
-                  ◦ 47
-                </button>
-              </div>
-
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 14,
-                  color: "var(--white-dim)",
-                  lineHeight: 1.7,
-                  fontWeight: 300,
-                }}
-              >
-                {win.win}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div
-        style={{
-          marginTop: 32,
-          padding: 32,
-          border: "1px dashed var(--line-bright)",
-          textAlign: "center",
-        }}
-      >
-        <div className="bp-label" style={{ marginBottom: 16 }}>
-          Share your progress
+  function CoachTab() {
+    return (
+      <div className="bp-fade-up" style={{ padding: "48px 56px", maxWidth: 1000, margin: "0 auto", width: "100%" }}>
+        <div style={{ marginBottom: 36 }}>
+          <div className="bp-label bp-label-blue">Private coach</div>
+          <h1 className="bp-serif" style={{ fontSize: 56, fontWeight: 300, margin: "12px 0 0" }}>
+            Ask the system.
+          </h1>
         </div>
 
-        <button className="bp-btn bp-btn-ghost">
-          <Plus size={13} strokeWidth={1.8} /> Post to the cohort
-        </button>
+        <div className="bp-card" style={{ minHeight: 560, display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: 24, borderBottom: "1px solid var(--line)", display: "flex", gap: 12, alignItems: "center" }}>
+            <MessageCircle size={18} style={{ color: "var(--blue-bright)" }} />
+            <div>
+              <div className="bp-serif" style={{ fontSize: 18 }}>Blueprint Coach</div>
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)" }}>
+                MOCK MODE · AI INTEGRATION SOON
+              </div>
+            </div>
+          </div>
+
+          <div style={{ flex: 1, padding: 24, overflowY: "auto" }}>
+            {chatMessages.map((message, index) => (
+              <div
+                key={index}
+                style={{
+                  marginBottom: 16,
+                  display: "flex",
+                  justifyContent: message.role === "user" ? "flex-end" : "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "72%",
+                    padding: "14px 16px",
+                    border: "1px solid var(--line)",
+                    background: message.role === "user" ? "rgba(59, 108, 255, 0.12)" : "var(--ink-2)",
+                    color: "var(--white-dim)",
+                    lineHeight: 1.6,
+                    fontSize: 14,
+                  }}
+                >
+                  {message.text}
+                </div>
+              </div>
+            ))}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          <div style={{ padding: 24, borderTop: "1px solid var(--line)", display: "flex", gap: 12 }}>
+            <input
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  sendMessage();
+                }
+              }}
+              placeholder="Paste a message or ask for the next move..."
+              style={{
+                flex: 1,
+                background: "var(--ink)",
+                border: "1px solid var(--line)",
+                color: "var(--white)",
+                padding: "14px 16px",
+                outline: "none",
+              }}
+            />
+
+            <button onClick={sendMessage} className="bp-btn bp-btn-blue">
+              <Send size={14} />
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  function ProgressTab() {
+    return (
+      <div className="bp-fade-up" style={{ padding: "48px 56px", maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+        <div className="bp-label bp-label-blue">Progress</div>
+
+        <h1 className="bp-serif" style={{ fontSize: 56, fontWeight: 300, margin: "12px 0 40px" }}>
+          Your numbers are moving.
+        </h1>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+          {[
+            ["Overall", "71", "+8 this month"],
+            ["Completed missions", "18", "+4 this week"],
+            ["Photo score", "82", "+14 from first scan"],
+          ].map(([title, value, detail]) => (
+            <div key={title} className="bp-card" style={{ padding: 28 }}>
+              <div className="bp-label">{title}</div>
+              <div className="bp-serif" style={{ fontSize: 58, color: "var(--blue-bright)", marginTop: 18 }}>
+                {value}
+              </div>
+              <div style={{ color: "var(--white-dim)", fontSize: 14 }}>{detail}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bp-card" style={{ padding: 32, marginTop: 24 }}>
+          <div className="bp-label" style={{ marginBottom: 20 }}>
+            Trajectory
+          </div>
+
+          <div style={{ height: 220, display: "flex", alignItems: "end", gap: 16 }}>
+            {[42, 48, 51, 56, 61, 66, 71].map((height, index) => (
+              <div key={index} style={{ flex: 1 }}>
+                <div
+                  style={{
+                    height: `${height * 2}px`,
+                    background: "linear-gradient(180deg, var(--blue-bright), rgba(59, 108, 255, 0.12))",
+                    border: "1px solid var(--blue-deep)",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function CommunityTab() {
+    return (
+      <div className="bp-fade-up" style={{ padding: "48px 56px", maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+        <div className="bp-label bp-label-blue">Cohort</div>
+
+        <h1 className="bp-serif" style={{ fontSize: 56, fontWeight: 300, margin: "12px 0 40px" }}>
+          Quiet wins.
+        </h1>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {[
+            ["Marcus L.", "Sent the direct invite. She said yes. I was making it harder than it was."],
+            ["Ivan T.", "Changed the first photo and the profile finally started converting."],
+            ["Tom V.", "Stopped asking for approval. The conversations feel different now."],
+          ].map(([name, text]) => (
+            <div key={name} className="bp-card" style={{ padding: 28, display: "flex", gap: 20 }}>
+              <div style={{ width: 48, height: 48, border: "1px solid var(--line-bright)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--blue-bright)" }}>
+                {name[0]}
+              </div>
+
+              <div>
+                <div className="bp-serif" style={{ fontSize: 19 }}>{name}</div>
+                <p style={{ color: "var(--white-dim)", lineHeight: 1.7, margin: "8px 0 0" }}>
+                  {text}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bp-root" style={{ display: "flex", minHeight: "100vh" }}>
@@ -1129,29 +462,12 @@ export default function AppInterior({ setView }) {
           height: "100vh",
         }}
       >
-        <div
-          style={{
-            padding: "0 28px 28px",
-            borderBottom: "1px solid var(--line)",
-            display: "flex",
-            alignItems: "center",
-            gap: 14,
-          }}
-        >
+        <div style={{ padding: "0 28px 28px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 14 }}>
           <div className="bp-mark" style={{ width: 26, height: 26 }} />
+
           <div>
-            <div className="bp-serif" style={{ fontSize: 17, fontWeight: 400 }}>
-              Blueprint
-            </div>
-            <div
-              className="bp-mono"
-              style={{
-                fontSize: 9,
-                color: "var(--gray-low)",
-                marginTop: 1,
-                letterSpacing: "0.1em",
-              }}
-            >
+            <div className="bp-serif" style={{ fontSize: 17 }}>Blueprint</div>
+            <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)", letterSpacing: "0.1em" }}>
               CORE · DAY 12
             </div>
           </div>
@@ -1159,33 +475,15 @@ export default function AppInterior({ setView }) {
 
         <div style={{ padding: "24px 28px", borderBottom: "1px solid var(--line)" }}>
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                border: "1px solid var(--line-bright)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "var(--ink)",
-              }}
-            >
-              <span
-                className="bp-serif"
-                style={{ fontSize: 18, fontWeight: 400, color: "var(--blue-bright)" }}
-              >
-                D
-              </span>
+            <div style={{ width: 42, height: 42, border: "1px solid var(--line-bright)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--ink)" }}>
+              <span className="bp-serif" style={{ fontSize: 18, color: "var(--blue-bright)" }}>D</span>
             </div>
 
             <div>
-              <div
-                className="bp-mono"
-                style={{ fontSize: 9, color: "var(--gray-low)", letterSpacing: "0.12em" }}
-              >
+              <div className="bp-mono" style={{ fontSize: 9, color: "var(--gray-low)", letterSpacing: "0.12em" }}>
                 MEMBER 0047
               </div>
-              <div className="bp-serif" style={{ fontSize: 15, fontWeight: 400, marginTop: 1 }}>
+              <div className="bp-serif" style={{ fontSize: 15, marginTop: 1 }}>
                 Daniel R.
               </div>
             </div>
@@ -1193,10 +491,7 @@ export default function AppInterior({ setView }) {
 
           <div style={{ marginTop: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span
-                className="bp-mono"
-                style={{ fontSize: 10, color: "var(--gray)", letterSpacing: "0.12em" }}
-              >
+              <span className="bp-mono" style={{ fontSize: 10, color: "var(--gray)" }}>
                 TIER IV
               </span>
               <span className="bp-mono" style={{ fontSize: 10, color: "var(--blue-bright)" }}>
@@ -1216,39 +511,29 @@ export default function AppInterior({ setView }) {
             { id: "coach", icon: Radio, label: "Coach" },
             { id: "progress", icon: BarChart3, label: "Progress" },
             { id: "community", icon: Users, label: "Cohort" },
-          ].map((tab) => {
-            const Icon = tab.icon;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  width: "100%",
-                  padding: "14px 28px",
-                  background: activeTab === tab.id ? "var(--ink-3)" : "transparent",
-                  border: "none",
-                  borderLeft:
-                    activeTab === tab.id
-                      ? "1px solid var(--blue)"
-                      : "1px solid transparent",
-                  color: activeTab === tab.id ? "var(--white)" : "var(--gray)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 400,
-                  letterSpacing: "0.01em",
-                  transition: "all 0.2s",
-                }}
-              >
-                <Icon size={14} strokeWidth={1.5} />
-                {tab.label}
-              </button>
-            );
-          })}
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                width: "100%",
+                padding: "14px 28px",
+                background: activeTab === tab.id ? "var(--ink-3)" : "transparent",
+                border: "none",
+                borderLeft: activeTab === tab.id ? "1px solid var(--blue)" : "1px solid transparent",
+                color: activeTab === tab.id ? "var(--white)" : "var(--gray)",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                fontSize: 13,
+                cursor: "pointer",
+                fontFamily: "'Manrope', sans-serif",
+              }}
+            >
+              <tab.icon size={14} strokeWidth={1.5} />
+              {tab.label}
+            </button>
+          ))}
         </nav>
 
         <div style={{ padding: "24px 28px 0", borderTop: "1px solid var(--line)" }}>
@@ -1258,34 +543,21 @@ export default function AppInterior({ setView }) {
 
           <div style={{ padding: 18, background: "var(--ink-3)", border: "1px solid var(--blue-deep)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <Crown size={13} style={{ color: "var(--blue-bright)" }} strokeWidth={1.5} />
-              <span className="bp-serif" style={{ fontSize: 16, fontWeight: 400 }}>
-                Pro tier
-              </span>
+              <Crown size={13} style={{ color: "var(--blue-bright)" }} />
+              <span className="bp-serif" style={{ fontSize: 16 }}>Pro tier</span>
             </div>
 
-            <p
-              style={{
-                margin: "0 0 14px",
-                fontSize: 11,
-                color: "var(--white-dim)",
-                lineHeight: 1.6,
-                fontWeight: 300,
-              }}
-            >
+            <p style={{ margin: "0 0 14px", fontSize: 11, color: "var(--white-dim)", lineHeight: 1.6 }}>
               Real-time date mode. Monthly coach review.
             </p>
 
-            <button
-              className="bp-btn bp-btn-blue"
-              style={{ width: "100%", justifyContent: "center", padding: "10px", fontSize: 11 }}
-            >
+            <button className="bp-btn bp-btn-blue" style={{ width: "100%", justifyContent: "center", padding: "10px", fontSize: 11 }}>
               Subscribe
             </button>
           </div>
 
           <button
-            onClick={() => setView("landing")}
+            onClick={onLogout}
             style={{
               marginTop: 20,
               background: "none",
@@ -1298,7 +570,7 @@ export default function AppInterior({ setView }) {
               letterSpacing: "0.15em",
             }}
           >
-            ← EXIT
+            ← LOG OUT
           </button>
         </div>
       </aside>
@@ -1339,11 +611,6 @@ export default function AppInterior({ setView }) {
               position: "relative",
             }}
           >
-            <div className="bp-corner bp-corner-tl" />
-            <div className="bp-corner bp-corner-tr" />
-            <div className="bp-corner bp-corner-bl" />
-            <div className="bp-corner bp-corner-br" />
-
             <button
               onClick={() => {
                 setShowRatingModal(false);
@@ -1360,178 +627,58 @@ export default function AppInterior({ setView }) {
                 cursor: "pointer",
               }}
             >
-              <X size={13} strokeWidth={1.5} />
+              <X size={13} />
             </button>
 
             {!ratedPhoto ? (
               <div style={{ textAlign: "center", padding: "40px 0" }}>
-                <div
-                  style={{
-                    width: 100,
-                    height: 100,
-                    border: "1px solid var(--blue)",
-                    margin: "0 auto 32px",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(90deg, transparent, rgba(59, 108, 255, 0.2), transparent)",
-                      backgroundSize: "200% 100%",
-                      animation: "bp-shimmer 1.8s infinite",
-                    }}
-                  />
-                  <Camera
-                    size={28}
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      color: "var(--blue-bright)",
-                    }}
-                    strokeWidth={1.3}
-                  />
+                <Upload size={38} style={{ color: "var(--blue-bright)", marginBottom: 24 }} />
+
+                <div className="bp-serif" style={{ fontSize: 34, marginBottom: 12 }}>
+                  Analyzing photo
                 </div>
 
-                <div className="bp-label bp-label-blue" style={{ marginBottom: 14 }}>
-                  Analysing
-                </div>
-                <div className="bp-serif" style={{ fontSize: 30, fontWeight: 400, letterSpacing: "-0.02em" }}>
-                  Reading the frame
-                </div>
-                <div
-                  className="bp-mono"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--gray-low)",
-                    marginTop: 20,
-                    letterSpacing: "0.18em",
-                  }}
-                >
-                  LIGHT · COMPOSITION · EXPRESSION · STYLE
-                </div>
+                <p style={{ color: "var(--white-dim)", lineHeight: 1.7 }}>
+                  Blueprint is reading frame, lighting, contrast, posture and facial signal.
+                </p>
               </div>
             ) : (
               <>
-                <div className="bp-label bp-label-blue" style={{ marginBottom: 12 }}>
-                  Verdict · frame 04
+                <div className="bp-label bp-label-blue" style={{ marginBottom: 16 }}>
+                  Photo assessment
                 </div>
 
-                <div style={{ display: "flex", alignItems: "baseline", gap: 20, marginBottom: 6 }}>
-                  <span
-                    className="bp-serif"
-                    style={{
-                      fontSize: 96,
-                      fontWeight: 300,
-                      color: "var(--white)",
-                      lineHeight: 1,
-                      letterSpacing: "-0.045em",
-                    }}
-                  >
-                    {ratedPhoto.score}
-                  </span>
-                  <span
-                    className="bp-serif"
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 400,
-                      fontStyle: "italic",
-                      color: "var(--blue-bright)",
-                    }}
-                  >
-                    {ratedPhoto.verdict}
-                  </span>
-                </div>
+                <h2 className="bp-serif" style={{ fontSize: 42, margin: "0 0 20px" }}>
+                  {ratedPhoto.verdict}
+                </h2>
 
-                <div
-                  className="bp-mono"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--gray-low)",
-                    marginBottom: 32,
-                    letterSpacing: "0.15em",
-                  }}
-                >
-                  PERCENTILE 78 · ACTIVE COHORT
+                <div className="bp-serif" style={{ fontSize: 64, color: "var(--blue-bright)", marginBottom: 20 }}>
+                  {ratedPhoto.score}
                 </div>
 
                 <div style={{ marginBottom: 24 }}>
-                  <div className="bp-label" style={{ marginBottom: 14, color: "var(--blue-bright)" }}>
-                    What works
-                  </div>
-
-                  {ratedPhoto.positives.map((positive, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: "flex",
-                        gap: 14,
-                        padding: "10px 0",
-                        fontSize: 14,
-                        color: "var(--white-dim)",
-                        borderBottom: "1px solid var(--line)",
-                        fontWeight: 300,
-                      }}
-                    >
-                      <Check size={13} style={{ color: "var(--blue-bright)", marginTop: 4 }} strokeWidth={2} />
-                      <span>{positive}</span>
+                  {ratedPhoto.positives.map((item, index) => (
+                    <div key={index} style={{ display: "flex", gap: 12, padding: "8px 0", color: "var(--white-dim)" }}>
+                      <Check size={13} style={{ color: "var(--blue-bright)", marginTop: 4 }} />
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
 
                 <div style={{ marginBottom: 28 }}>
-                  <div className="bp-label" style={{ marginBottom: 14, color: "var(--gray)" }}>
-                    What to adjust
-                  </div>
-
-                  {ratedPhoto.negatives.map((negative, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        display: "flex",
-                        gap: 14,
-                        padding: "10px 0",
-                        fontSize: 14,
-                        color: "var(--white-dim)",
-                        borderBottom: "1px solid var(--line)",
-                        fontWeight: 300,
-                      }}
-                    >
-                      <X size={13} style={{ color: "var(--gray)", marginTop: 4 }} strokeWidth={2} />
-                      <span>{negative}</span>
+                  {ratedPhoto.negatives.map((item, index) => (
+                    <div key={index} style={{ display: "flex", gap: 12, padding: "8px 0", color: "var(--white-dim)" }}>
+                      <X size={13} style={{ color: "var(--gray)", marginTop: 4 }} />
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
 
-                <div
-                  style={{
-                    padding: 24,
-                    background: "var(--ink)",
-                    border: "1px solid var(--blue)",
-                    marginBottom: 28,
-                    position: "relative",
-                  }}
-                >
-                  <div className="bp-corner bp-corner-tl" style={{ width: 8, height: 8 }} />
-                  <div className="bp-corner bp-corner-br" style={{ width: 8, height: 8 }} />
-
+                <div style={{ padding: 22, background: "var(--ink)", border: "1px solid var(--blue)", marginBottom: 28 }}>
                   <div className="bp-label bp-label-blue" style={{ marginBottom: 12 }}>
                     The move
                   </div>
-
-                  <div
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.7,
-                      color: "var(--white-dim)",
-                      fontWeight: 300,
-                    }}
-                  >
+                  <div style={{ color: "var(--white-dim)", lineHeight: 1.7 }}>
                     {ratedPhoto.action}
                   </div>
                 </div>
