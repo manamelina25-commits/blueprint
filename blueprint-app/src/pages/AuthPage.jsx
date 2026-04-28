@@ -64,6 +64,24 @@ export default function AuthPage() {
     setIsLoading(false);
   }
 
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+      setIsLoading(false);
+    }
+  }
+
   function switchAuthMode(nextMode) {
     setAuthMode(nextMode);
     setSuccessMessage("");
@@ -155,6 +173,22 @@ export default function AuthPage() {
                   : "Create account"}
             </button>
           </form>
+
+          <div className="auth-divider auth-divider-secondary">
+            <span />
+            <p>or continue with Google</p>
+            <span />
+          </div>
+
+          <button
+            className="auth-google-button"
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+          >
+            <span className="auth-google-icon">G</span>
+            Continue with Google
+          </button>
         </div>
 
         <div className="auth-switch">
@@ -170,7 +204,7 @@ export default function AuthPage() {
         </div>
 
         <p className="auth-footer">
-          Google sign-in will be added after the email/password flow is stable.
+          Your session stays saved after login unless you sign out.
         </p>
       </section>
     </main>
