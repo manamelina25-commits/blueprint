@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 import { supabase } from "./lib/supabaseClient";
+import {
+  completeUserOnboarding,
+  getOrCreateProfile,
+} from "./lib/profileService";
 
 import AuthPage from "./pages/AuthPage";
 import Onboarding from "./pages/Onboarding";
@@ -10,32 +14,48 @@ import AppInterior from "./pages/AppInterior";
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [view, setView] = useState("onboarding");
   const [onboardStep, setOnboardStep] = useState(0);
 
+  async function loadUserProfile(user) {
+    const userProfile = await getOrCreateProfile(user);
+
+    setProfile(userProfile);
+    setView(userProfile.onboarding_completed ? "app" : "onboarding");
+
+    return userProfile;
+  }
+
   useEffect(() => {
-    async function loadSession() {
+    let isMounted = true;
+
+    async function loadInitialSession() {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
         console.error(error);
       }
 
+      if (!isMounted) {
+        return;
+      }
+
       const currentSession = data.session;
       setSession(currentSession);
 
       if (currentSession?.user) {
-        const onboardingCompleted = localStorage.getItem(
-          `blueprint:onboarding_completed:${currentSession.user.id}`
-        );
-
-        setView(onboardingCompleted === "true" ? "app" : "onboarding");
+        try {
+          await loadUserProfile(currentSession.user);
+        } catch (profileError) {
+          console.error(profileError);
+        }
       }
 
       setIsLoading(false);
     }
 
-    loadSession();
+    loadInitialSession();
 
     const {
       data: { subscription },
@@ -43,28 +63,41 @@ function App() {
       setSession(currentSession);
 
       if (currentSession?.user) {
-        const onboardingCompleted = localStorage.getItem(
-          `blueprint:onboarding_completed:${currentSession.user.id}`
-        );
-
-        setView(onboardingCompleted === "true" ? "app" : "onboarding");
+        loadUserProfile(currentSession.user).catch((profileError) => {
+          console.error(profileError);
+        });
       } else {
+        setProfile(null);
         setView("onboarding");
         setOnboardStep(0);
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  function handleSetView(nextView) {
+  async function handleSetView(nextView) {
     if (nextView === "app" && session?.user) {
-      localStorage.setItem(
-        `blueprint:onboarding_completed:${session.user.id}`,
-        "true"
-      );
+      try {
+        setIsLoading(true);
+
+        const updatedProfile = await completeUserOnboarding(session.user.id, {
+          completed_at: new Date().toISOString(),
+          source: "onboarding_v1",
+        });
+
+        setProfile(updatedProfile);
+        setView("app");
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+
+      return;
     }
 
     setView(nextView);
@@ -74,6 +107,7 @@ function App() {
     await supabase.auth.signOut();
 
     setSession(null);
+    setProfile(null);
     setView("onboarding");
     setOnboardStep(0);
   }
@@ -102,14 +136,19 @@ function App() {
     <>
       {view === "onboarding" && (
         <Onboarding
-  onboardStep={onboardStep}
-  setOnboardStep={setOnboardStep}
-  setView={handleSetView}
-  onExit={handleLogout}
-/>
+          onboardStep={onboardStep}
+          setOnboardStep={setOnboardStep}
+          setView={handleSetView}
+          onExit={handleLogout}
+        />
       )}
 
-      {view === "app" && <AppInterior onLogout={handleLogout} />}
+      {view === "app" && (
+        <AppInterior
+          profile={profile}
+          onLogout={handleLogout}
+        />
+      )}
     </>
   );
 }
