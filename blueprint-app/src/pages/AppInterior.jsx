@@ -20,6 +20,8 @@ import {
   getUserChatMessages,
 } from "../lib/chatService";
 
+import { supabase } from "../lib/supabaseClient";
+
 function ScoreRing({ value, size = 180 }) {
   const radius = size / 2 - 5;
   const circumference = 2 * Math.PI * radius;
@@ -175,15 +177,49 @@ export default function AppInterior({ profile, onLogout }) {
         content: cleanInput,
       });
 
-      const coachText =
-        "Good. The pattern is clear: you are over-explaining before there is enough tension. Cut the justification, keep the frame, and make the next line specific.";
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError || !sessionData.session?.access_token) {
+        throw new Error("Missing active session.");
+      }
+
+      const conversationMessages = [...chatMessages, userMessage]
+        .slice(-12)
+        .map((message) => ({
+          role: message.role === "coach" ? "assistant" : "user",
+          content: message.text,
+        }));
+
+      const response = await fetch("/api/coach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+        body: JSON.stringify({
+          message: cleanInput,
+          messages: conversationMessages,
+          profile,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Coach request failed.");
+      }
+
+      const coachText = payload.reply;
 
       const savedCoachMessage = await createChatMessage({
         userId: profile.id,
         role: "coach",
         content: coachText,
         metadata: {
-          mode: "mock",
+          mode: "claude",
+          model: payload.model,
+          usage: payload.usage,
         },
       });
 
