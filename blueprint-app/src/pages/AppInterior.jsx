@@ -15,6 +15,11 @@ import {
   X,
 } from "lucide-react";
 
+import {
+  createChatMessage,
+  getUserChatMessages,
+} from "../lib/chatService";
+
 function ScoreRing({ value, size = 180 }) {
   const radius = size / 2 - 5;
   const circumference = 2 * Math.PI * radius;
@@ -49,7 +54,7 @@ function ScoreRing({ value, size = 180 }) {
   );
 }
 
-export default function AppInterior({ onLogout }) {
+export default function AppInterior({ profile, onLogout }) {
   const [activeTab, setActiveTab] = useState("home");
 
   const [missions, setMissions] = useState([
@@ -77,6 +82,7 @@ export default function AppInterior({ onLogout }) {
   ]);
 
   const [chatInput, setChatInput] = useState("");
+  const [isCoachThinking, setIsCoachThinking] = useState(false);
 
   const [chatMessages, setChatMessages] = useState([
     {
@@ -103,6 +109,41 @@ export default function AppInterior({ onLogout }) {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadSavedMessages() {
+      if (!profile?.id) {
+        return;
+      }
+
+      try {
+        const savedMessages = await getUserChatMessages(profile.id);
+
+        if (ignore) {
+          return;
+        }
+
+        if (savedMessages.length > 0) {
+          setChatMessages(
+            savedMessages.map((message) => ({
+              role: message.role,
+              text: message.content,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadSavedMessages();
+
+    return () => {
+      ignore = true;
+    };
+  }, [profile?.id]);
+
   function toggleMission(id) {
     setMissions((currentMissions) =>
       currentMissions.map((mission) =>
@@ -111,32 +152,61 @@ export default function AppInterior({ onLogout }) {
     );
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const cleanInput = chatInput.trim();
 
-    if (!cleanInput) {
+    if (!cleanInput || !profile?.id || isCoachThinking) {
       return;
     }
 
-    setChatMessages((currentMessages) => [
-      ...currentMessages,
-      {
-        role: "user",
-        text: cleanInput,
-      },
-    ]);
+    const userMessage = {
+      role: "user",
+      text: cleanInput,
+    };
 
     setChatInput("");
+    setChatMessages((currentMessages) => [...currentMessages, userMessage]);
+    setIsCoachThinking(true);
 
-    setTimeout(() => {
+    try {
+      await createChatMessage({
+        userId: profile.id,
+        role: "user",
+        content: cleanInput,
+      });
+
+      const coachText =
+        "Good. The pattern is clear: you are over-explaining before there is enough tension. Cut the justification, keep the frame, and make the next line specific.";
+
+      const savedCoachMessage = await createChatMessage({
+        userId: profile.id,
+        role: "coach",
+        content: coachText,
+        metadata: {
+          mode: "mock",
+        },
+      });
+
       setChatMessages((currentMessages) => [
         ...currentMessages,
         {
           role: "coach",
-          text: "Good. The pattern is clear: you are over-explaining before there is enough tension. Cut the justification, keep the frame, and make the next line specific.",
+          text: savedCoachMessage.content,
         },
       ]);
-    }, 700);
+    } catch (error) {
+      console.error(error);
+
+      setChatMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          role: "coach",
+          text: "I could not save this message. Try again in a moment.",
+        },
+      ]);
+    } finally {
+      setIsCoachThinking(false);
+    }
   }
 
   function handlePhotoRate() {
@@ -334,6 +404,30 @@ export default function AppInterior({ onLogout }) {
               </div>
             ))}
 
+            {isCoachThinking && (
+              <div
+                style={{
+                  marginBottom: 16,
+                  display: "flex",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "72%",
+                    padding: "14px 16px",
+                    border: "1px solid var(--line)",
+                    background: "var(--ink-2)",
+                    color: "var(--white-dim)",
+                    lineHeight: 1.6,
+                    fontSize: 14,
+                  }}
+                >
+                  Reading the pattern...
+                </div>
+              </div>
+            )}
+
             <div ref={chatEndRef} />
           </div>
 
@@ -357,7 +451,11 @@ export default function AppInterior({ onLogout }) {
               }}
             />
 
-            <button onClick={sendMessage} className="bp-btn bp-btn-blue">
+            <button
+              onClick={sendMessage}
+              className="bp-btn bp-btn-blue"
+              disabled={isCoachThinking}
+            >
               <Send size={14} />
             </button>
           </div>
@@ -576,10 +674,10 @@ export default function AppInterior({ onLogout }) {
       </aside>
 
       <main style={{ flex: 1, background: "var(--ink)", display: "flex", flexDirection: "column" }}>
-        {activeTab === "home" && <HomeTab />}
-        {activeTab === "coach" && <CoachTab />}
-        {activeTab === "progress" && <ProgressTab />}
-        {activeTab === "community" && <CommunityTab />}
+        {activeTab === "home" && HomeTab()}
+        {activeTab === "coach" && CoachTab()}
+        {activeTab === "progress" && ProgressTab()}
+        {activeTab === "community" && CommunityTab()}
       </main>
 
       {showRatingModal && (
