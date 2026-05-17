@@ -17,11 +17,13 @@ function App() {
   const [profile, setProfile] = useState(null);
   const [view, setView] = useState("onboarding");
   const [onboardStep, setOnboardStep] = useState(0);
+  const [onboardingAnswers, setOnboardingAnswers] = useState({});
 
   async function loadUserProfile(user) {
     const userProfile = await getOrCreateProfile(user);
 
     setProfile(userProfile);
+    setOnboardingAnswers(userProfile.onboarding_data ?? {});
     setView(userProfile.onboarding_completed ? "app" : "onboarding");
 
     return userProfile;
@@ -68,6 +70,7 @@ function App() {
         });
       } else {
         setProfile(null);
+        setOnboardingAnswers({});
         setView("onboarding");
         setOnboardStep(0);
       }
@@ -85,11 +88,13 @@ function App() {
         setIsLoading(true);
 
         const updatedProfile = await completeUserOnboarding(session.user.id, {
+          ...onboardingAnswers,
           completed_at: new Date().toISOString(),
           source: "onboarding_v1",
         });
 
         setProfile(updatedProfile);
+        setOnboardingAnswers(updatedProfile.onboarding_data ?? {});
         setView("app");
       } catch (error) {
         console.error(error);
@@ -108,6 +113,7 @@ function App() {
 
     setSession(null);
     setProfile(null);
+    setOnboardingAnswers({});
     setView("onboarding");
     setOnboardStep(0);
   }
@@ -140,14 +146,13 @@ function App() {
           setOnboardStep={setOnboardStep}
           setView={handleSetView}
           onExit={handleLogout}
+          onboardingAnswers={onboardingAnswers}
+          setOnboardingAnswers={setOnboardingAnswers}
         />
       )}
 
       {view === "app" && (
-        <AppInterior
-          profile={profile}
-          onLogout={handleLogout}
-        />
+        <AppInterior profile={profile} onLogout={handleLogout} />
       )}
     </>
   );

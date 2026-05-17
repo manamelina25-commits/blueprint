@@ -5,9 +5,12 @@ export default function Onboarding({
   setOnboardStep,
   setView,
   onExit,
+  onboardingAnswers,
+  setOnboardingAnswers,
 }) {
   const steps = [
     {
+      key: "reason",
       question: "What brings you to Blueprint?",
       options: [
         "I'm matching with no one",
@@ -18,10 +21,12 @@ export default function Onboarding({
       ],
     },
     {
+      key: "age_bracket",
       question: "Your age bracket.",
       options: ["18–22", "23–27", "28–32", "33–37", "38 and above"],
     },
     {
+      key: "platforms",
       question: "Which platforms are you on?",
       options: [
         "Hinge",
@@ -32,6 +37,7 @@ export default function Onboarding({
       ],
     },
     {
+      key: "feedback_style",
       question: "How direct should the feedback be?",
       options: [
         "Gentle — I'm fragile right now",
@@ -44,7 +50,12 @@ export default function Onboarding({
   const currentStep = steps[onboardStep];
   const isComplete = onboardStep >= steps.length;
 
-  function handleNextStep() {
+  function handleSelectOption(stepKey, option) {
+    setOnboardingAnswers((currentAnswers) => ({
+      ...currentAnswers,
+      [stepKey]: option,
+    }));
+
     setOnboardStep(onboardStep + 1);
   }
 
@@ -150,24 +161,32 @@ export default function Onboarding({
           </h1>
 
           <div className="onboarding-options">
-            {currentStep.options.map((option, index) => (
-              <button
-                key={option}
-                className="onboarding-option-button"
-                type="button"
-                onClick={handleNextStep}
-              >
-                <span className="onboarding-option-left">
-                  <span className="onboarding-option-letter">
-                    {String.fromCharCode(65 + index)}
+            {currentStep.options.map((option, index) => {
+              const isSelected = onboardingAnswers?.[currentStep.key] === option;
+
+              return (
+                <button
+                  key={option}
+                  className={
+                    isSelected
+                      ? "onboarding-option-button onboarding-option-button-selected"
+                      : "onboarding-option-button"
+                  }
+                  type="button"
+                  onClick={() => handleSelectOption(currentStep.key, option)}
+                >
+                  <span className="onboarding-option-left">
+                    <span className="onboarding-option-letter">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+
+                    <span className="onboarding-option-text">{option}</span>
                   </span>
 
-                  <span className="onboarding-option-text">{option}</span>
-                </span>
-
-                <ChevronRight size={16} strokeWidth={1.6} />
-              </button>
-            ))}
+                  <ChevronRight size={16} strokeWidth={1.6} />
+                </button>
+              );
+            })}
           </div>
 
           {onboardStep > 0 && (

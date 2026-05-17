@@ -1488,3 +1488,19 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* Onboarding selected option */
+
+.onboarding-option-button-selected {
+  border-color: #7fa3ff !important;
+  background: rgba(40, 95, 255, 0.18) !important;
+  box-shadow: 0 0 0 1px rgba(111, 155, 255, 0.22);
+}
+
+.onboarding-option-button-selected .onboarding-option-text {
+  color: #ffffff !important;
+}
+
+.onboarding-option-button-selected .onboarding-option-letter {
+  color: #ffffff !important;
+}
